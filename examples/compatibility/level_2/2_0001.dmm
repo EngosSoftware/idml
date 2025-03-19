@@ -65,7 +65,7 @@
         .SHARED_STYLE style2
     .EDGE
         .ID _e9a73517-0ba2-4b31-b308-82279ae21591
-        .DMN_ELEMENT_REF: _70c3f69a-63f3-4197-96ce-b206c8bd2a6b
+        .DMN_ELEMENT_REF _70c3f69a-63f3-4197-96ce-b206c8bd2a6b
         .WAYPOINTS 95.0 160.0, 95.0 80.0
     .STYLE
         .ID style1
