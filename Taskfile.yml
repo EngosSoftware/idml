@@ -19,6 +19,11 @@ tasks:
     cmds:
       - cmd: cargo +stable clippy --all-targets
 
+  cov:
+    desc: Generates code coverage report
+    cmds:
+      - cmd: ./Coverage.sh
+
   doc:
     desc: Generates documentation
     cmds:

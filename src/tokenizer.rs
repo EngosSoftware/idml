@@ -50,6 +50,23 @@ pub fn join_tokens(tokens: Vec<Token>) -> String {
   buffer
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum LineEnding {
+  Lf,
+  Cr,
+  CrLf,
+}
+
+impl AsRef<str> for LineEnding {
+  fn as_ref(&self) -> &str {
+    match self {
+      LineEnding::Lf => "\n",
+      LineEnding::Cr => "\r",
+      LineEnding::CrLf => "\r\n",
+    }
+  }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Token {
   NodeName(String),
@@ -93,6 +110,8 @@ struct Tokenizer<'a> {
   previous_char: char,
   /// The next character on input.
   next_char: char,
+  /// Last parsed line ending.
+  line_ending: LineEnding,
   /// The name of currently processed node.
   node_name: String,
   /// The content of currently processed node.
@@ -115,6 +134,7 @@ impl<'a> Tokenizer<'a> {
       current_char: EMPTY_CHAR,
       previous_char: EMPTY_CHAR,
       next_char: EMPTY_CHAR,
+      line_ending: LineEnding::Lf,
       node_name: "".to_string(),
       node_content: "".to_string(),
       indentation: "".to_string(),
@@ -134,16 +154,19 @@ impl<'a> Tokenizer<'a> {
         (LF, other) => {
           self.row += 1;
           self.column = 0;
+          self.line_ending = LineEnding::Lf;
           (LF, other)
         }
         (CR, LF) => {
           self.row += 1;
           self.column = 0;
+          self.line_ending = LineEnding::CrLf;
           (self.next(), self.peek())
         }
         (CR, other) => {
           self.row += 1;
           self.column = 0;
+          self.line_ending = LineEnding::Cr;
           (LF, other)
         }
         (other1, other2) => (other1, other2),
@@ -187,7 +210,7 @@ impl<'a> Tokenizer<'a> {
               self.state = State::Indentation;
             }
             (_, LF, _) => {
-              self.node_content.push(LF);
+              self.node_content.push_str(self.line_ending.as_ref());
             }
             (_, other, _) => {
               self.node_content.push(other);
@@ -211,7 +234,7 @@ impl<'a> Tokenizer<'a> {
             }
             (_, LF, _) => {
               self.consume_node_name();
-              self.node_content.push(LF);
+              self.node_content.push_str(self.line_ending.as_ref());
               self.state = State::NewLine;
             }
             (_, other, _) => return Err(err_unexpected_character(other, self.row, self.column)),
@@ -240,7 +263,7 @@ impl<'a> Tokenizer<'a> {
           match self.context() {
             (_, EMPTY_CHAR, _) => return Err(err_unexpected_end()),
             (_, LF, _) => {
-              self.node_content.push(LF);
+              self.node_content.push_str(self.line_ending.as_ref());
               self.state = State::NewLine
             }
             (_, other, _) => self.node_content.push(other),
@@ -297,25 +320,19 @@ impl<'a> Tokenizer<'a> {
 
   /// Consumes the node name.
   fn consume_node_name(&mut self) {
-    if !self.node_name.is_empty() {
-      self.tokens.push(Token::NodeName(self.node_name.clone()));
-      self.node_name.clear();
-    }
+    self.tokens.push(Token::NodeName(self.node_name.clone()));
+    self.node_name.clear();
   }
 
   /// Consumes the node content.
   fn consume_node_content(&mut self) {
-    if !self.node_content.is_empty() {
-      self.tokens.push(Token::NodeContent(self.node_content.clone()));
-    }
+    self.tokens.push(Token::NodeContent(self.node_content.clone()));
     self.node_content.clear();
   }
 
   /// Consumes the indentation.
   fn consume_indentation(&mut self) {
-    if !self.indentation.is_empty() {
-      self.tokens.push(Token::Indentation(self.indentation.len()));
-      self.indentation.clear();
-    }
+    self.tokens.push(Token::Indentation(self.indentation.len()));
+    self.indentation.clear();
   }
 }
