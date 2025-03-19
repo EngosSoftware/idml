@@ -1,4 +1,4 @@
-//! # Tokenizer for Decision Modeling Markup input text
+//! # Tokenizer implementation
 
 use crate::errors::*;
 use std::fmt::Write;
@@ -6,32 +6,32 @@ use std::iter::Peekable;
 use std::str::Chars;
 
 /// Character indicating the start of the node name.
-const NODE_START: char = '.';
+pub const NODE_START: char = '.';
 
 /// Whitespace character.
-const WS: char = ' ';
+pub const WS: char = ' ';
 
 /// Line feed character.
-const LF: char = '\n';
+pub const LF: char = '\n';
 
 /// Carriage return character.
-const CR: char = '\r';
+pub const CR: char = '\r';
 
 /// Slash character.
-const SLASH: char = '/';
+pub const SLASH: char = '/';
 
 /// Asterisk character.
-const ASTERISK: char = '*';
+pub const ASTERISK: char = '*';
 
-/// Empty character, text files do not have zero value characters.
-const EMPTY_CHAR: char = '\u{0}';
+/// Empty character (zero).
+pub const NULL: char = '\u{0}';
 
-/// Tokenizes the provided input.
+/// Tokenizes input text.
 pub fn tokenize(input: &str) -> Result<Vec<Token>> {
   Tokenizer::new(input).tokenize()
 }
 
-/// Joins tokens back to the previously tokenized input.
+/// Combines tokens back to previously tokenized input text.
 pub fn join_tokens(tokens: Vec<Token>) -> String {
   let mut buffer = String::new();
   for token in tokens {
@@ -50,6 +50,7 @@ pub fn join_tokens(tokens: Vec<Token>) -> String {
   buffer
 }
 
+/// Line endings.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum LineEnding {
   Lf,
@@ -67,6 +68,7 @@ impl AsRef<str> for LineEnding {
   }
 }
 
+/// Tokens.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Token {
   NodeName(String),
@@ -74,8 +76,9 @@ pub enum Token {
   Indentation(usize),
 }
 
+/// Tokenizer state.
 #[derive(Copy, Clone)]
-enum State {
+pub enum TokenizerState {
   /// At the beginning of the input.
   Start,
   /// At the beginning of the line.
@@ -92,34 +95,34 @@ enum State {
   SingleLineComment,
 }
 
-/// A structure representing the DMM tokenizer.
-struct Tokenizer<'a> {
+/// Tokenizer.
+pub struct Tokenizer<'a> {
   /// Current row position in processed input.
-  row: usize,
+  pub row: usize,
   /// Current column position in processed content.
-  column: usize,
+  pub column: usize,
   /// Current tokenizing state.
-  state: State,
+  pub state: TokenizerState,
   /// Next state after processing comments.
-  next_state: State,
+  pub next_state: TokenizerState,
   /// Input chars.
-  chars: Peekable<Chars<'a>>,
+  pub chars: Peekable<Chars<'a>>,
   /// Currently processed character.
-  current_char: char,
+  pub current_char: char,
   /// The previously processed character.
-  previous_char: char,
+  pub previous_char: char,
   /// The next character on input.
-  next_char: char,
+  pub next_char: char,
   /// Last parsed line ending.
-  line_ending: LineEnding,
+  pub line_ending: LineEnding,
   /// The name of currently processed node.
-  node_name: String,
+  pub node_name: String,
   /// The content of currently processed node.
-  node_content: String,
+  pub node_content: String,
   /// The content of currently processed indentation.
-  indentation: String,
+  pub indentation: String,
   /// Processed tokens.
-  tokens: Vec<Token>,
+  pub tokens: Vec<Token>,
 }
 
 impl<'a> Tokenizer<'a> {
@@ -128,12 +131,12 @@ impl<'a> Tokenizer<'a> {
     Self {
       row: 1,
       column: 0,
-      state: State::Start,
-      next_state: State::Start,
+      state: TokenizerState::Start,
+      next_state: TokenizerState::Start,
       chars: input.chars().peekable(),
-      current_char: EMPTY_CHAR,
-      previous_char: EMPTY_CHAR,
-      next_char: EMPTY_CHAR,
+      current_char: NULL,
+      previous_char: NULL,
+      next_char: NULL,
       line_ending: LineEnding::Lf,
       node_name: "".to_string(),
       node_content: "".to_string(),
@@ -172,56 +175,58 @@ impl<'a> Tokenizer<'a> {
         (other1, other2) => (other1, other2),
       };
       match self.state {
-        State::Start => {
+        TokenizerState::Start => {
           // Process the beginning of the file.
           match self.context() {
-            (_, EMPTY_CHAR, _) => return Err(err_unexpected_end()),
+            (_, NULL, _) => return Err(err_unexpected_end()),
             (_, NODE_START, _) => {
-              self.state = State::NodeName;
+              self.tokens.push(Token::Indentation(0));
+              self.state = TokenizerState::NodeName;
             }
-            (_, SLASH, EMPTY_CHAR) => return Err(err_unexpected_end()),
+            (_, SLASH, NULL) => return Err(err_unexpected_end()),
             (_, SLASH, SLASH) => {
               self.consume_char();
-              self.next_state = State::Start;
-              self.state = State::SingleLineComment;
+              self.next_state = TokenizerState::Start;
+              self.state = TokenizerState::SingleLineComment;
             }
             (_, SLASH, ASTERISK) => {
               self.consume_char();
-              self.next_state = State::Start;
-              self.state = State::MultiLineComment;
+              self.next_state = TokenizerState::Start;
+              self.state = TokenizerState::MultiLineComment;
             }
             (_, SLASH, other) => return Err(err_unexpected_character(other, self.row, self.column + 1)),
             (_, other, _) => return Err(err_unexpected_character(other, self.row, self.column)),
           }
         }
-        State::NewLine => {
+        TokenizerState::NewLine => {
           // Decide what to do in the new line.
           match self.context() {
-            (_, EMPTY_CHAR, _) => {
+            (_, NULL, _) => {
               self.consume_node_content();
               break;
             }
             (_, NODE_START, _) => {
               self.consume_node_content();
-              self.state = State::NodeName;
+              self.tokens.push(Token::Indentation(0));
+              self.state = TokenizerState::NodeName;
             }
             (_, WS, _) => {
               self.indentation.push(WS);
-              self.state = State::Indentation;
+              self.state = TokenizerState::Indentation;
             }
             (_, LF, _) => {
               self.node_content.push_str(self.line_ending.as_ref());
             }
             (_, other, _) => {
               self.node_content.push(other);
-              self.state = State::NodeContent;
+              self.state = TokenizerState::NodeContent;
             }
           }
         }
-        State::NodeName => {
+        TokenizerState::NodeName => {
           // Consume the node name.
           match self.context() {
-            (_, EMPTY_CHAR, _) => {
+            (_, NULL, _) => {
               return Err(err_unexpected_end());
             }
             (_, 'a'..='z' | 'A'..='Z' | '_' | '-', _) => {
@@ -230,50 +235,50 @@ impl<'a> Tokenizer<'a> {
             (_, WS, _) => {
               self.consume_node_name();
               self.node_content.push(WS);
-              self.state = State::NodeContent;
+              self.state = TokenizerState::NodeContent;
             }
             (_, LF, _) => {
               self.consume_node_name();
               self.node_content.push_str(self.line_ending.as_ref());
-              self.state = State::NewLine;
+              self.state = TokenizerState::NewLine;
             }
             (_, other, _) => return Err(err_unexpected_character(other, self.row, self.column)),
           }
         }
-        State::Indentation => {
+        TokenizerState::Indentation => {
           // Consume the indentation at the beginning of the line.
           match self.context() {
-            (_, EMPTY_CHAR, _) => return Err(err_unexpected_end()),
+            (_, NULL, _) => return Err(err_unexpected_end()),
             (_, NODE_START, _) => {
               self.consume_node_content();
               self.consume_indentation();
-              self.state = State::NodeName
+              self.state = TokenizerState::NodeName
             }
             (_, WS, _) => self.indentation.push(WS),
             (_, other, _) => {
               self.node_content.push_str(&self.indentation);
               self.node_content.push(other);
               self.indentation.clear();
-              self.state = State::NodeContent
+              self.state = TokenizerState::NodeContent
             }
           }
         }
-        State::NodeContent => {
+        TokenizerState::NodeContent => {
           // Consume the node content.
           match self.context() {
-            (_, EMPTY_CHAR, _) => return Err(err_unexpected_end()),
+            (_, NULL, _) => return Err(err_unexpected_end()),
             (_, LF, _) => {
               self.node_content.push_str(self.line_ending.as_ref());
-              self.state = State::NewLine
+              self.state = TokenizerState::NewLine
             }
             (_, other, _) => self.node_content.push(other),
           }
         }
-        State::MultiLineComment => {
+        TokenizerState::MultiLineComment => {
           // Consume the content of a multi line comment.
           match self.context() {
-            (_, EMPTY_CHAR, _) => return Err(err_unexpected_end()),
-            (_, _, EMPTY_CHAR) => return Err(err_unexpected_end()),
+            (_, NULL, _) => return Err(err_unexpected_end()),
+            (_, _, NULL) => return Err(err_unexpected_end()),
             (_, ASTERISK, SLASH) => {
               self.consume_char();
               self.state = self.next_state;
@@ -281,11 +286,11 @@ impl<'a> Tokenizer<'a> {
             _ => {}
           }
         }
-        State::SingleLineComment => {
+        TokenizerState::SingleLineComment => {
           // Consume the content of a single line comment.
           match self.context() {
-            (_, EMPTY_CHAR, _) => return Err(err_unexpected_end()),
-            (_, _, EMPTY_CHAR) => return Err(err_unexpected_end()),
+            (_, NULL, _) => return Err(err_unexpected_end()),
+            (_, _, NULL) => return Err(err_unexpected_end()),
             (_, LF, _) => self.state = self.next_state,
             _ => {}
           }
@@ -304,12 +309,12 @@ impl<'a> Tokenizer<'a> {
   fn next(&mut self) -> char {
     self.previous_char = self.current_char;
     self.column += 1;
-    self.chars.next().unwrap_or(EMPTY_CHAR)
+    self.chars.next().unwrap_or(NULL)
   }
 
   /// Peeks the next character on input.
   fn peek(&mut self) -> char {
-    self.chars.peek().cloned().unwrap_or(EMPTY_CHAR)
+    self.chars.peek().cloned().unwrap_or(NULL)
   }
 
   /// Consumes the next character on input.

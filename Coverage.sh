@@ -2,6 +2,9 @@
 
 WORKING_DIRECTORY=$(pwd)
 
+# Clean all previous coverage data.
+cargo llvm-cov clean
+
 # Run all tests with code coverage.
 cargo llvm-cov --html
 echo ""
