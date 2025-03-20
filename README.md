@@ -1,1 +1,3 @@
-# Decision Modeling Markup
+**IDML** 
+
+# Indented Delimiter Markup Language

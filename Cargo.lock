@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "dmm-rs"
+name = "idml"
 version = "0.0.1"

@@ -1,4 +1,4 @@
-use dmm_rs::parse;
+use idml::parse;
 use std::fs;
 
 #[test]

@@ -1,4 +1,4 @@
-use dmm_rs::{Parser, ParserState, Token, parse, parse_tokens};
+use idml::{Parser, ParserState, Token, parse, parse_tokens};
 
 #[test]
 fn _0001() {

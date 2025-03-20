@@ -1,6 +1,11 @@
 [package]
-name = "dmm-rs"
+name = "idml"
 version = "0.0.1"
+authors = ["Dariusz Depta <depta@engos.de>"]
+description = "IDML file parser"
+documentation = "https://docs.rs/idml"
+repository = "https://github.com/EngosSoftware/idml.git"
+keywords = ["indented", "delimiter", "markup", "language", "parser"]
+categories = ["encoding"]
+license = "MIT OR Apache-2.0"
 edition = "2024"
-
-[dependencies]

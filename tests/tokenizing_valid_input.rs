@@ -1,4 +1,4 @@
-use dmm_rs::{Token, join_tokens, tokenize};
+use idml::{Token, join_tokens, tokenize};
 use std::fs;
 
 #[test]

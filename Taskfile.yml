@@ -47,7 +47,7 @@ tasks:
   fmt:
     desc: Runs the code formatter
     cmds:
-      - cmd: cargo +nightly fmt --all
+      - cmd: cargo +stable fmt --all
 
   test:
     desc: Runs tests in debug mode

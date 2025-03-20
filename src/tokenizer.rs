@@ -194,8 +194,12 @@ impl<'a> Tokenizer<'a> {
               self.next_state = TokenizerState::Start;
               self.state = TokenizerState::MultiLineComment;
             }
-            (_, SLASH, other) => return Err(err_unexpected_character(other, self.row, self.column + 1)),
-            (_, other, _) => return Err(err_unexpected_character(other, self.row, self.column)),
+            (_, SLASH, other) => {
+              return Err(err_unexpected_character(other, self.row, self.column + 1));
+            }
+            (_, other, _) => {
+              return Err(err_unexpected_character(other, self.row, self.column));
+            }
           }
         }
         TokenizerState::NewLine => {
@@ -242,7 +246,9 @@ impl<'a> Tokenizer<'a> {
               self.node_content.push_str(self.line_ending.as_ref());
               self.state = TokenizerState::NewLine;
             }
-            (_, other, _) => return Err(err_unexpected_character(other, self.row, self.column)),
+            (_, other, _) => {
+              return Err(err_unexpected_character(other, self.row, self.column));
+            }
           }
         }
         TokenizerState::Indentation => {

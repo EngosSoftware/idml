@@ -1,4 +1,4 @@
-use dmm_rs::tokenize;
+use idml::tokenize;
 
 #[test]
 fn _0001() {
