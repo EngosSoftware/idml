@@ -51,16 +51,16 @@
     .RESOLUTION 300
     .SIZE 190.0 240.0
     .SHAPE
-        .DMN_ELEMENT_REF _75b3add2-4d36-4a19-a76c-268b49b2f436
         .ID _ebf33cfc-0ee3-4708-af8b-91c52237b7d6
+        .DMN_ELEMENT_REF _75b3add2-4d36-4a19-a76c-268b49b2f436
         .BOUNDS 20.0 20.0 150.0 60.0
         .LABEL
             .TEXT `GREETING MESSAGE`
             .SHARED_STYLE style1
         .SHARED_STYLE style1
     .SHAPE
-        .DMN_ELEMENT_REF _cba86e4d-e91c-46a2-9176-e9adf88e15db
         .ID _48ea7a1d-2575-4cb7-8b63-8baa4cb3b371
+        .DMN_ELEMENT_REF _cba86e4d-e91c-46a2-9176-e9adf88e15db
         .BOUNDS 20.0 160.0 150.0 60.0
         .SHARED_STYLE style2
     .EDGE
