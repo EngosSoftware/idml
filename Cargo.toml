@@ -2,7 +2,7 @@
 name = "idml"
 version = "0.0.1"
 authors = ["Dariusz Depta <depta@engos.de>"]
-description = "IDML file parser"
+description = "Parser for Indented Delimiter Markup Language(s)"
 documentation = "https://docs.rs/idml"
 repository = "https://github.com/EngosSoftware/idml.git"
 keywords = ["indented", "delimiter", "markup", "language", "parser"]
