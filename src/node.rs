@@ -65,7 +65,7 @@ impl Node {
 
   /// Returns the trimmed content of the node.
   pub fn text(&self) -> &str {
-    &self.content.trim()
+    self.content.trim()
   }
 
   /// Returns the iterator over child nodes.

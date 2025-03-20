@@ -4,7 +4,7 @@ use idml::{Parser, ParserState, Token, parse, parse_tokens};
 fn _0001() {
   // Empty input.
   let input = "";
-  assert_eq!("empty input", parse(&input).unwrap_err().to_string());
+  assert_eq!("empty input", parse(input).unwrap_err().to_string());
 }
 
 #[test]
@@ -15,7 +15,7 @@ fn _0002() {
     .C
    .D
 "#;
-  assert_eq!("malformed indentation 3, expected multiplication of 4", parse(&input).unwrap_err().to_string());
+  assert_eq!("malformed indentation 3, expected multiplication of 4", parse(input).unwrap_err().to_string());
 }
 
 #[test]
@@ -26,7 +26,7 @@ fn _0003() {
     .C
     .D
 "#;
-  assert_eq!("malformed indentation 4, expected multiplication of 8", parse(&input).unwrap_err().to_string());
+  assert_eq!("malformed indentation 4, expected multiplication of 8", parse(input).unwrap_err().to_string());
 }
 
 #[test]

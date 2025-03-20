@@ -4,7 +4,7 @@ use std::fs;
 #[test]
 fn _0001() {
   let input = ".A\n";
-  let root = parse(&input).unwrap();
+  let root = parse(input).unwrap();
   assert_eq!(1, root.children().count());
   let node = root.children().next().unwrap();
   assert_eq!("A", node.name());
@@ -15,7 +15,7 @@ fn _0001() {
 #[test]
 fn _0002() {
   let input = ".A\n.B\n";
-  let root = parse(&input).unwrap();
+  let root = parse(input).unwrap();
   let mut children = root.children();
   let first = children.next().unwrap();
   assert_eq!("A", first.name());

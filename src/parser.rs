@@ -104,8 +104,8 @@ impl Parser {
       }
     }
     let mut root = Node::root();
-    while !self.stack.is_empty() {
-      root.add_child(self.stack.pop().unwrap());
+    while let Some(node) = self.stack.pop() {
+      root.add_child(node);
     }
     Ok(root)
   }
