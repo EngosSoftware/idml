@@ -1,4 +1,4 @@
-name: Linux MUSL
+name: Linux
 
 on:
   push:

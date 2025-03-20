@@ -5,6 +5,7 @@
 ![build Linux][build-badge-linux]
 ![build Windows][build-badge-windows]
 ![build MacOs][build-badge-macos]
+![build MacOs arm64][build-badge-macos-arm64]
 [![MIT licensed][mit-badge]][mit-license-url]
 [![Apache 2.0 licensed][apache-badge]][apache-license-url]
 [![Contributor Covenant][cc-badge]][cc-url]
@@ -21,6 +22,7 @@
 [build-badge-linux]: https://github.com/EngosSoftware/idml/actions/workflows/build-linux.yml/badge.svg
 [build-badge-windows]: https://github.com/EngosSoftware/idml/actions/workflows/build-windows.yml/badge.svg
 [build-badge-macos]: https://github.com/EngosSoftware/idml/actions/workflows/build-macos.yml/badge.svg
+[build-badge-macos-arm64]: https://github.com/EngosSoftware/idml/actions/workflows/build-macos-arm64.yml/badge.svg
 [coverage-badge]: https://img.shields.io/badge/Code%20coverage-100%25-green.svg
 [cc-badge]: https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg
 [cc-url]: https://github.com/EngosSoftware/idml/blob/main/CODE_OF_CONDUCT.md
