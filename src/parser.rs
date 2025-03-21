@@ -15,7 +15,7 @@ pub fn parse_tokens(tokens: Vec<Token>) -> Result<Node> {
 }
 
 /// Parser state.
-pub enum ParserState {
+enum ParserState {
   /// Expected the indentation token.
   Indentation,
   /// Expected the node name token.
@@ -26,13 +26,14 @@ pub enum ParserState {
 
 /// Parser.
 pub struct Parser {
-  pub state: ParserState,
-  pub tokens: IntoIter<Token>,
-  pub nodes: Vec<Node>,
-  pub stack: Vec<Node>,
-  pub first_indent: Option<usize>,
-  pub last_indent: Option<usize>,
-  pub last_name: Option<String>,
+  state: ParserState,
+  tokens: IntoIter<Token>,
+  nodes: Vec<Node>,
+  stack: Vec<Node>,
+  first_indent: usize,
+  last_indent: usize,
+  last_name: String,
+  last_delimiter: char,
 }
 
 impl Parser {
@@ -43,9 +44,10 @@ impl Parser {
       tokens: tokens.into_iter(),
       nodes: vec![],
       stack: vec![],
-      first_indent: None,
-      last_indent: None,
-      last_name: None,
+      first_indent: 0,
+      last_indent: 0,
+      last_name: "".to_string(),
+      last_delimiter: 0 as char,
     }
   }
 
@@ -58,18 +60,19 @@ impl Parser {
       match self.state {
         ParserState::Indentation => {
           if let Token::Indentation(indent) = token {
-            if self.first_indent.is_none() && indent > 0 {
-              self.first_indent = Some(indent);
+            if self.first_indent == 0 && indent > 0 {
+              self.first_indent = indent;
             }
-            self.last_indent = Some(indent);
+            self.last_indent = indent;
             self.state = ParserState::NodeName;
           } else {
             return Err(err_expected_indentation());
           }
         }
         ParserState::NodeName => {
-          if let Token::NodeName(name) = token {
-            self.last_name = Some(name);
+          if let Token::NodeName(name, delimiter) = token {
+            self.last_name = name;
+            self.last_delimiter = delimiter;
             self.state = ParserState::NodeContent;
           } else {
             return Err(err_expected_node_name());
@@ -77,15 +80,10 @@ impl Parser {
         }
         ParserState::NodeContent => {
           if let Token::NodeContent(content) = token {
-            let Some(indent) = self.last_indent else {
-              return Err(err_no_previous_indentation());
-            };
-            let Some(name) = self.last_name.clone() else {
-              return Err(err_no_previous_node_name());
-            };
-            self.create_node(indent, '.', name, content)?;
-            self.last_indent = None;
-            self.last_name = None;
+            self.create_node(self.last_indent, self.last_delimiter, self.last_name.clone(), content)?;
+            self.last_indent = 0;
+            self.last_name = "".to_string();
+            self.last_delimiter = 0 as char;
             self.state = ParserState::Indentation;
           } else {
             return Err(err_expected_node_content());
@@ -103,7 +101,7 @@ impl Parser {
         self.stack.push(node);
       }
     }
-    let mut root = Node::root('.');
+    let mut root = Node::root();
     while let Some(node) = self.stack.pop() {
       root.add_child(node);
     }
@@ -112,7 +110,7 @@ impl Parser {
 
   /// Creates a new node and adds it to the parsed node list.
   fn create_node(&mut self, indent: usize, delimiter: char, name: String, content: String) -> Result<()> {
-    let multiplier = self.first_indent.unwrap_or(0);
+    let multiplier = self.first_indent;
     if multiplier > 0 && indent % multiplier != 0 {
       return Err(err_malformed_indentation(indent, multiplier));
     }
