@@ -5,6 +5,6 @@ mod node;
 mod parser;
 mod tokenizer;
 
-pub use node::*;
-pub use parser::*;
-pub use tokenizer::*;
+pub use node::Node;
+pub use parser::{Parser, parse, parse_tokens};
+pub use tokenizer::{Token, Tokenizer, join_tokens, tokenize};

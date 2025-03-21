@@ -54,16 +54,6 @@ pub fn err_expected_indentation() -> DmmError {
   DmmError::new("expected indentation token")
 }
 
-/// Reports expected indentation token before current token.
-pub fn err_no_previous_indentation() -> DmmError {
-  DmmError::new("no previous indentation token")
-}
-
-/// Reports expected node name token before current token.
-pub fn err_no_previous_node_name() -> DmmError {
-  DmmError::new("no previous node name token")
-}
-
 /// Reports malformed indentation.
 pub fn err_malformed_indentation(indent: usize, multiplier: usize) -> DmmError {
   DmmError::new(&format!("malformed indentation {indent}, expected multiplication of {multiplier}"))
