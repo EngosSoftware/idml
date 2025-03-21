@@ -93,6 +93,19 @@ fn _0006() {
 
 #[test]
 fn _0007() {
+  let input = ".A\n$B\n";
+  let root = parse(input).unwrap();
+  let mut children = root.children();
+  let first = children.next().unwrap();
+  assert_eq!('.', first.delimiter());
+  assert_eq!("A", first.name());
+  assert_eq!("\n$B\n", first.content());
+  assert_eq!("$B", first.text());
+  assert!(children.next().is_none());
+}
+
+#[test]
+fn _0008() {
   let content = fs::read_to_string("./examples/compatibility/level_2/2_0001.dmm").expect("failed to load test file");
   let root = parse(&content).unwrap();
   assert_eq!(content, root.document(4));
