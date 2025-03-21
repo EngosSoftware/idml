@@ -1,4 +1,4 @@
-//! # Tokenizer implementation
+//! # IDML tokenizer implementation
 
 use crate::errors::*;
 use std::fmt::Write;
@@ -24,7 +24,7 @@ pub const SLASH: char = '/';
 pub const ASTERISK: char = '*';
 
 /// Empty character (zero).
-pub const NULL: char = '\u{0}';
+pub const NULL: char = 0 as char;
 
 /// Tokenizes input text.
 pub fn tokenize(input: &str) -> Result<Vec<Token>> {
@@ -115,13 +115,15 @@ pub struct Tokenizer<'a> {
   pub next_char: char,
   /// Last parsed line ending.
   pub line_ending: LineEnding,
+  /// The content of currently processed indentation.
+  pub indentation: String,
+  /// Delimiter used in processed document.
+  pub delimiter: char,
   /// The name of currently processed node.
   pub node_name: String,
   /// The content of currently processed node.
   pub node_content: String,
-  /// The content of currently processed indentation.
-  pub indentation: String,
-  /// Processed tokens.
+  /// List of already processed tokens.
   pub tokens: Vec<Token>,
 }
 
@@ -138,9 +140,10 @@ impl<'a> Tokenizer<'a> {
       previous_char: NULL,
       next_char: NULL,
       line_ending: LineEnding::Lf,
+      indentation: "".to_string(),
+      delimiter: NULL,
       node_name: "".to_string(),
       node_content: "".to_string(),
-      indentation: "".to_string(),
       tokens: vec![],
     }
   }
@@ -148,11 +151,12 @@ impl<'a> Tokenizer<'a> {
   /// Tokenizes the input text.
   pub fn tokenize(mut self) -> Result<Vec<Token>> {
     if self.chars.peek().is_none() {
-      // Report an empty input and quit.
+      // Report an error when the input is empty.
       return Err(err_empty_input());
     }
+    // Process all characters from the input.
     loop {
-      // Normalize end-of-line characters.
+      // Normalize the end-of-line characters.
       (self.current_char, self.next_char) = match (self.next(), self.peek()) {
         (LF, other) => {
           self.row += 1;
@@ -233,7 +237,7 @@ impl<'a> Tokenizer<'a> {
             (_, NULL, _) => {
               return Err(err_unexpected_end());
             }
-            (_, 'a'..='z' | 'A'..='Z' | '_' | '-', _) => {
+            (_, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_' | '-', _) => {
               self.node_name.push(self.current_char);
             }
             (_, WS, _) => {

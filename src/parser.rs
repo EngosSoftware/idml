@@ -1,4 +1,4 @@
-//! # Parser implementation
+//! # IDML parser implementation
 
 use crate::errors::*;
 use crate::{Node, Token, tokenize};
@@ -9,18 +9,18 @@ pub fn parse(input: &str) -> Result<Node> {
   Parser::new(tokenize(input)?).parse()
 }
 
-/// Parses tokens.
+/// Parses input tokens.
 pub fn parse_tokens(tokens: Vec<Token>) -> Result<Node> {
   Parser::new(tokens).parse()
 }
 
 /// Parser state.
 pub enum ParserState {
-  /// Expected indentation token.
+  /// Expected the indentation token.
   Indentation,
-  /// Expected node name token.
+  /// Expected the node name token.
   NodeName,
-  /// Expected node content token.
+  /// Expected the node content token.
   NodeContent,
 }
 
@@ -83,7 +83,7 @@ impl Parser {
             let Some(name) = self.last_name.clone() else {
               return Err(err_no_previous_node_name());
             };
-            self.create_node(indent, name, content)?;
+            self.create_node(indent, '.', name, content)?;
             self.last_indent = None;
             self.last_name = None;
             self.state = ParserState::Indentation;
@@ -103,21 +103,21 @@ impl Parser {
         self.stack.push(node);
       }
     }
-    let mut root = Node::root();
+    let mut root = Node::root('.');
     while let Some(node) = self.stack.pop() {
       root.add_child(node);
     }
     Ok(root)
   }
 
-  /// Adds a new
-  fn create_node(&mut self, indent: usize, name: String, content: String) -> Result<()> {
+  /// Creates a new node and adds it to the parsed node list.
+  fn create_node(&mut self, indent: usize, delimiter: char, name: String, content: String) -> Result<()> {
     let multiplier = self.first_indent.unwrap_or(0);
     if multiplier > 0 && indent % multiplier != 0 {
       return Err(err_malformed_indentation(indent, multiplier));
     }
     let level = if multiplier > 0 { (indent / multiplier) + 1 } else { 1 };
-    let node = Node::new(level, name, content);
+    let node = Node::new(level, delimiter, name, content);
     self.nodes.push(node);
     Ok(())
   }
