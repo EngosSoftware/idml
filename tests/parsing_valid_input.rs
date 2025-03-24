@@ -9,36 +9,65 @@ fn _0001() {
   let node = root.children().next().unwrap();
   assert_eq!('.', node.delimiter());
   assert_eq!("A", node.name());
+  assert_eq!("a", node.tag());
   assert_eq!("\n", node.content());
   assert_eq!("", node.text());
 }
 
 #[test]
 fn _0002() {
-  let input = ">z\n";
+  let input = "😀_this_is-pascal_case-tag\n";
   let root = parse(input).unwrap();
   assert_eq!(1, root.children().count());
   let node = root.children().next().unwrap();
-  assert_eq!('>', node.delimiter());
-  assert_eq!("z", node.name());
+  assert_eq!('😀', node.delimiter());
+  assert_eq!("_this_is-pascal_case-tag", node.name());
+  assert_eq!("ThisIsPascalCaseTag", node.tag());
   assert_eq!("\n", node.content());
   assert_eq!("", node.text());
 }
 
 #[test]
 fn _0003() {
-  let input = ".A1\n";
+  let input = "😀this_is-camel_case-tag\n";
   let root = parse(input).unwrap();
   assert_eq!(1, root.children().count());
   let node = root.children().next().unwrap();
-  assert_eq!('.', node.delimiter());
-  assert_eq!("A1", node.name());
+  assert_eq!('😀', node.delimiter());
+  assert_eq!("this_is-camel_case-tag", node.name());
+  assert_eq!("thisIsCamelCaseTag", node.tag());
   assert_eq!("\n", node.content());
   assert_eq!("", node.text());
 }
 
 #[test]
 fn _0004() {
+  let input = ">z\n";
+  let root = parse(input).unwrap();
+  assert_eq!(1, root.children().count());
+  let node = root.children().next().unwrap();
+  assert_eq!('>', node.delimiter());
+  assert_eq!("z", node.name());
+  assert_eq!("z", node.tag());
+  assert_eq!("\n", node.content());
+  assert_eq!("", node.text());
+}
+
+#[test]
+fn _0005() {
+  let input = ".A1\n";
+  let root = parse(input).unwrap();
+  assert_eq!(1, root.children().count());
+  let node = root.children().next().unwrap();
+  assert_eq!('.', node.delimiter());
+  assert_eq!("A1", node.name());
+  assert_eq!("a1", node.tag());
+  assert_eq!("\n", node.content());
+  assert_eq!("", node.text());
+}
+
+#[test]
+fn _0006() {
   let input = ".A\n.k\n";
   let root = parse(input).unwrap();
   let mut children = root.children();
@@ -56,7 +85,7 @@ fn _0004() {
 }
 
 #[test]
-fn _0005() {
+fn _0007() {
   let input = "$x\n$_\n";
   let root = parse(input).unwrap();
   let mut children = root.children();
@@ -74,7 +103,7 @@ fn _0005() {
 }
 
 #[test]
-fn _0006() {
+fn _0008() {
   let input = "*n\n    *_\n";
   let root = parse(input).unwrap();
   let mut children = root.children();
@@ -86,13 +115,14 @@ fn _0006() {
   let second = first.children().next().unwrap();
   assert_eq!('*', second.delimiter());
   assert_eq!("_", second.name());
+  assert_eq!("_", second.tag());
   assert_eq!("\n", second.content());
   assert_eq!("", second.text());
   assert!(children.next().is_none());
 }
 
 #[test]
-fn _0007() {
+fn _0009() {
   let input = ".A\n$B\n";
   let root = parse(input).unwrap();
   let mut children = root.children();
@@ -105,7 +135,7 @@ fn _0007() {
 }
 
 #[test]
-fn _0008() {
+fn _0010() {
   let content = fs::read_to_string("./examples/compatibility/level_2/2_0001.dmm").expect("failed to load test file");
   let root = parse(&content).unwrap();
   assert_eq!(content, root.document(4));

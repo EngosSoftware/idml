@@ -1,5 +1,6 @@
 //! # IDML parser implementation
 
+use crate::defs::*;
 use crate::errors::*;
 use crate::{Node, Token, tokenize};
 use std::vec::IntoIter;
@@ -47,7 +48,7 @@ impl Parser {
       first_indent: 0,
       last_indent: 0,
       last_name: "".to_string(),
-      last_delimiter: 0 as char,
+      last_delimiter: NULL,
     }
   }
 
@@ -83,7 +84,7 @@ impl Parser {
             self.create_node(self.last_indent, self.last_delimiter, self.last_name.clone(), content)?;
             self.last_indent = 0;
             self.last_name = "".to_string();
-            self.last_delimiter = 0 as char;
+            self.last_delimiter = NULL;
             self.state = ParserState::Indentation;
           } else {
             return Err(err_expected_node_content());

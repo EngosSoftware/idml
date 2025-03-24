@@ -1,5 +1,6 @@
 //! # Parser for Indented Delimiter Markup Language(s)
 
+mod defs;
 mod errors;
 mod node;
 mod parser;

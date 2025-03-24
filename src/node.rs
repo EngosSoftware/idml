@@ -1,9 +1,10 @@
 //! # Tree node implementation
 
+use crate::defs::*;
 use std::fmt::Write;
 
 const ROOT_LEVEL: usize = 0;
-const ROOT_DELIMITER: char = 0 as char;
+const ROOT_DELIMITER: char = NULL;
 const ROOT_NAME: &str = "root";
 const ROOT_CONTENT: &str = "";
 
@@ -19,6 +20,9 @@ pub struct Node {
   /// The name of the node.
   /// Original name as defined in the parsed document but without delimiter.
   name: String,
+  /// Node tag.
+  /// Tag is a `camelCase` or `PascalCase` version of the node name.
+  tag: String,
   /// The content of the node.
   /// Original content as defined in the parsed document.
   content: String,
@@ -34,6 +38,7 @@ impl Node {
       level: ROOT_LEVEL,
       delimiter: ROOT_DELIMITER,
       name: ROOT_NAME.to_string(),
+      tag: ROOT_NAME.to_string(),
       content: ROOT_CONTENT.to_string(),
       children: vec![],
     }
@@ -41,15 +46,21 @@ impl Node {
 
   /// Returns `true` when this node is a root node.
   pub(crate) fn is_root(&self) -> bool {
-    self.level == ROOT_LEVEL && self.delimiter == ROOT_DELIMITER && self.name == ROOT_NAME && self.content == ROOT_CONTENT
+    self.level == ROOT_LEVEL &&           // always 0
+      self.delimiter == ROOT_DELIMITER && // always zero
+      self.name == ROOT_NAME &&           // "root"
+      self.tag == ROOT_NAME &&            // "root"
+      self.content == ROOT_CONTENT // empty string
   }
 
   /// Creates a new node with delimiter, name and content.
   pub fn new(level: usize, delimiter: char, name: String, content: String) -> Self {
+    let tag = create_tag(&name);
     Self {
       level,
       delimiter,
       name,
+      tag,
       content,
       children: vec![],
     }
@@ -73,6 +84,11 @@ impl Node {
   /// Returns the node name.
   pub fn name(&self) -> &str {
     &self.name
+  }
+
+  /// Returns the node tag.
+  pub fn tag(&self) -> &str {
+    &self.tag
   }
 
   /// Returns the node content.
@@ -102,4 +118,21 @@ impl Node {
     }
     buffer
   }
+}
+
+/// Creates a node tag from provided name.
+/// Node tag is a `camelCase` or `PascalCase` version of the node name.
+fn create_tag(name: &str) -> String {
+  let mut tag = String::new();
+  let mut chars = name.chars().peekable();
+  while let Some(ch) = chars.next() {
+    match (ch, chars.peek()) {
+      (HYPHEN | UNDERSCORE, Some(next)) => {
+        tag.push_str(&next.to_uppercase().to_string());
+        chars.next();
+      }
+      _ => tag.push_str(&ch.to_lowercase().to_string()),
+    }
+  }
+  tag
 }
