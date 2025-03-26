@@ -20,9 +20,6 @@ pub struct Node {
   /// The name of the node.
   /// Original name as defined in the parsed document but without delimiter.
   name: String,
-  /// Node tag.
-  /// Tag is a `camelCase` or `PascalCase` version of the node name.
-  tag: String,
   /// The content of the node.
   /// Original content as defined in the parsed document.
   content: String,
@@ -38,7 +35,6 @@ impl Node {
       level: ROOT_LEVEL,
       delimiter: ROOT_DELIMITER,
       name: ROOT_NAME.to_string(),
-      tag: ROOT_NAME.to_string(),
       content: ROOT_CONTENT.to_string(),
       children: vec![],
     }
@@ -49,18 +45,15 @@ impl Node {
     self.level == ROOT_LEVEL &&           // always 0
       self.delimiter == ROOT_DELIMITER && // always zero
       self.name == ROOT_NAME &&           // "root"
-      self.tag == ROOT_NAME &&            // "root"
       self.content == ROOT_CONTENT // empty string
   }
 
   /// Creates a new node with delimiter, name and content.
   pub fn new(level: usize, delimiter: char, name: String, content: String) -> Self {
-    let tag = create_tag(&name);
     Self {
       level,
       delimiter,
       name,
-      tag,
       content,
       children: vec![],
     }
@@ -86,11 +79,6 @@ impl Node {
     &self.name
   }
 
-  /// Returns the node tag.
-  pub fn tag(&self) -> &str {
-    &self.tag
-  }
-
   /// Returns the node content.
   pub fn content(&self) -> &str {
     &self.content
@@ -101,63 +89,41 @@ impl Node {
     self.content.trim()
   }
 
-  /// Returns the first child with specified name.
-  pub fn first_by_name(&self, name: impl AsRef<str>) -> Option<&Node> {
-    self.children.iter().find(|node| node.name == name.as_ref())
-  }
-
-  /// Returns the first child with specified tag.
-  pub fn first_by_tag(&self, tag: impl AsRef<str>) -> Option<&Node> {
-    self.children.iter().find(|node| node.tag == tag.as_ref())
-  }
-
   /// Returns the iterator over child nodes.
-  pub fn children(&self) -> impl Iterator<Item=&Node> {
+  pub fn children(&self) -> impl Iterator<Item = &Node> {
     self.children.iter()
   }
 
+  /// Returns the first child with specified name.
+  pub fn first(&self, name: impl AsRef<str>) -> Option<&Node> {
+    self.children.iter().find(|node| node.name == name.as_ref())
+  }
+
+  /// Returns the last child with specified name.
+  pub fn last(&self, name: impl AsRef<str>) -> Option<&Node> {
+    self.children.iter().rev().find(|node| node.name == name.as_ref())
+  }
+
   /// Returns the iterator over child nodes having the specified name.
-  pub fn children_by_name(&self, name: impl AsRef<str>) -> impl Iterator<Item=&Node> {
+  pub fn with_name(&self, name: impl AsRef<str>) -> impl Iterator<Item = &Node> {
     self.children.iter().filter(move |node| node.name == name.as_ref())
   }
 
   /// Returns the iterator over child nodes having the specified names.
-  pub fn children_with_names(&self, names: &[impl AsRef<str>]) -> impl Iterator<Item=&Node> {
+  pub fn with_names(&self, names: &[impl AsRef<str>]) -> impl Iterator<Item = &Node> {
     let names = names.iter().map(|name| name.as_ref()).collect::<Vec<&str>>();
     self.children.iter().filter(move |node| names.contains(&node.name()))
   }
 
-  /// Returns the iterator over child nodes having the specified tag.
-  pub fn children_by_tag(&self, tag: impl AsRef<str>) -> impl Iterator<Item=&Node> {
-    self.children.iter().filter(move |node| node.tag == tag.as_ref())
-  }
-
-  /// Returns the iterator over child nodes having the specified tags.
-  pub fn children_with_tags(&self, tags: &[impl AsRef<str>]) -> impl Iterator<Item=&Node> {
-    let tags = tags.iter().map(|tag| tag.as_ref()).collect::<Vec<&str>>();
-    self.children.iter().filter(move |node| tags.contains(&node.tag()))
-  }
-
   /// Returns the iterator over child nodes **NOT** having the specified name.
-  pub fn children_except_name(&self, name: impl AsRef<str>) -> impl Iterator<Item=&Node> {
+  pub fn except_name(&self, name: impl AsRef<str>) -> impl Iterator<Item = &Node> {
     self.children.iter().filter(move |node| node.name != name.as_ref())
   }
 
   /// Returns the iterator over child nodes **NOT** having the specified names.
-  pub fn children_except_names(&self, names: &[impl AsRef<str>]) -> impl Iterator<Item=&Node> {
+  pub fn except_names(&self, names: &[impl AsRef<str>]) -> impl Iterator<Item = &Node> {
     let names = names.iter().map(|name| name.as_ref()).collect::<Vec<&str>>();
     self.children.iter().filter(move |node| !names.contains(&node.name()))
-  }
-
-  /// Returns the iterator over child nodes **NOT** having the specified tag.
-  pub fn children_except_tag(&self, tag: impl AsRef<str>) -> impl Iterator<Item=&Node> {
-    self.children.iter().filter(move |node| node.tag != tag.as_ref())
-  }
-
-  /// Returns the iterator over child nodes **NOT** having the specified tags.
-  pub fn children_except_tags(&self, tags: &[impl AsRef<str>]) -> impl Iterator<Item=&Node> {
-    let tags = tags.iter().map(|tag| tag.as_ref()).collect::<Vec<&str>>();
-    self.children.iter().filter(move |node| !tags.contains(&node.tag()))
   }
 
   /// Returns the number of child nodes.
@@ -177,21 +143,4 @@ impl Node {
     }
     buffer
   }
-}
-
-/// Creates a node tag from provided name.
-/// Node tag is a `camelCase` or `PascalCase` version of the node name.
-fn create_tag(name: &str) -> String {
-  let mut tag = String::new();
-  let mut chars = name.chars().peekable();
-  while let Some(ch) = chars.next() {
-    match (ch, chars.peek()) {
-      (HYPHEN | UNDERSCORE, Some(next)) => {
-        tag.push_str(&next.to_uppercase().to_string());
-        chars.next();
-      }
-      _ => tag.push_str(&ch.to_lowercase().to_string()),
-    }
-  }
-  tag
 }
