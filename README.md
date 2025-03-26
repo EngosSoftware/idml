@@ -32,7 +32,7 @@
 
 ## Overview
  
-Parser for Indented Delimiter Markup Language(s).
+Parser for IDML - Indented Delimiter Markup Language(s).
 
 ## License
 
