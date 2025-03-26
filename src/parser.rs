@@ -1,4 +1,4 @@
-//! # IDML parser implementation
+//! # Parser implementation
 
 use crate::defs::*;
 use crate::errors::*;

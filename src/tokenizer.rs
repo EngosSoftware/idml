@@ -1,4 +1,4 @@
-//! # IDML tokenizer implementation
+//! # Tokenizer implementation
 
 use crate::defs::*;
 use crate::errors::*;
@@ -84,10 +84,6 @@ enum TokenizerState {
   NodeName,
   /// Inside the node content.
   NodeContent,
-  /// Inside a multiline line comment.
-  MultiLineComment,
-  /// Inside the single line comment.
-  SingleLineComment,
 }
 
 /// Tokenizer.
@@ -98,8 +94,6 @@ pub struct Tokenizer<'a> {
   column: usize,
   /// Current tokenizing state.
   state: TokenizerState,
-  /// Next state after processing comments.
-  next_state: TokenizerState,
   /// Input chars.
   chars: Peekable<Chars<'a>>,
   /// Currently processed character.
@@ -129,7 +123,6 @@ impl<'a> Tokenizer<'a> {
       row: 1,
       column: 0,
       state: TokenizerState::Start,
-      next_state: TokenizerState::Start,
       chars: input.chars().peekable(),
       current_char: NULL,
       previous_char: NULL,
@@ -145,13 +138,8 @@ impl<'a> Tokenizer<'a> {
 
   /// Tokenizes the input text.
   pub fn tokenize(mut self) -> Result<Vec<Token>> {
-    if self.chars.peek().is_none() {
-      // Report an error when the input is empty.
-      return Err(err_empty_input());
-    }
-    // Process all characters from the input.
     loop {
-      // Normalize the end-of-line characters.
+      // Normalize the end-of-line character(s).
       (self.current_char, self.next_char) = match (self.next(true), self.peek()) {
         (LF, ch) => {
           self.line_ending = LineEnding::Lf;
@@ -171,25 +159,11 @@ impl<'a> Tokenizer<'a> {
         TokenizerState::Start => {
           // Process the beginning of the file.
           match self.context() {
-            (_, NULL, _) => return Err(err_unexpected_end()),
+            (_, NULL, _) => return Err(err_empty_input()),
             (_, ch, _) if self.is_allowed_delimiter(ch) => {
               self.delimiter = ch;
               self.tokens.push(Token::Indentation(0));
               self.state = TokenizerState::NodeNameStart;
-            }
-            (_, SLASH, NULL) => return Err(err_unexpected_end()),
-            (_, SLASH, SLASH) => {
-              self.consume_char();
-              self.next_state = TokenizerState::Start;
-              self.state = TokenizerState::SingleLineComment;
-            }
-            (_, SLASH, ASTERISK) => {
-              self.consume_char();
-              self.next_state = TokenizerState::Start;
-              self.state = TokenizerState::MultiLineComment;
-            }
-            (_, SLASH, other) => {
-              return Err(err_unexpected_character(other, self.row, self.column + 1));
             }
             (_, other, _) => {
               return Err(err_unexpected_character(other, self.row, self.column));
@@ -197,7 +171,7 @@ impl<'a> Tokenizer<'a> {
           }
         }
         TokenizerState::NewLine => {
-          // Decide what to do in the new line.
+          // Decide what at the beginning of the line.
           match self.context() {
             (_, NULL, _) => {
               self.consume_node_content();
@@ -292,30 +266,6 @@ impl<'a> Tokenizer<'a> {
             (_, other, _) => self.node_content.push(other),
           }
         }
-        TokenizerState::MultiLineComment => {
-          // Consume the content of a multi line comment.
-          match self.context() {
-            (_, NULL, _) => return Err(err_unexpected_end()),
-            (_, _, NULL) => return Err(err_unexpected_end()),
-            (_, ASTERISK, SLASH) => {
-              self.consume_char();
-              self.state = self.next_state;
-            }
-            _ => {}
-          }
-        }
-        TokenizerState::SingleLineComment => {
-          // Consume the content of a single line comment.
-          match self.context() {
-            (_, NULL, _) => return Err(err_unexpected_end()),
-            (_, _, NULL) => return Err(err_unexpected_end()),
-            (_, LF, _) => {
-              self.new_row();
-              self.state = self.next_state
-            }
-            _ => {}
-          }
-        }
       }
     }
     Ok(self.tokens.clone())
@@ -340,12 +290,6 @@ impl<'a> Tokenizer<'a> {
     self.chars.peek().cloned().unwrap_or(NULL)
   }
 
-  /// Consumes the next character on input.
-  fn consume_char(&mut self) {
-    self.next(true);
-    self.next_char = self.peek();
-  }
-
   /// Consumes the node name.
   fn consume_node_name(&mut self) {
     self.tokens.push(Token::NodeName(self.node_name.clone(), self.delimiter));
@@ -366,7 +310,7 @@ impl<'a> Tokenizer<'a> {
 
   /// Returns `true` when the specified character is allowed delimiter character.
   fn is_allowed_delimiter(&self, ch: char) -> bool {
-    !(self.is_node_name_char(ch) || matches!(ch, '\u{0}' | WS | LF | CR | SLASH | UNDERSCORE | HYPHEN))
+    !(self.is_node_name_char(ch) || matches!(ch, NULL | WS | TAB | LF | CR | UNDERSCORE | HYPHEN))
   }
 
   /// Returns `true` when the specified character is recognized delimiter.

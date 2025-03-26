@@ -1,5 +1,4 @@
 use idml::parse;
-use std::fs;
 
 #[test]
 fn _0001() {
@@ -136,7 +135,7 @@ fn _0009() {
 
 #[test]
 fn _0010() {
-  let content = fs::read_to_string("./examples/compatibility/level_2/2_0001.dmm").expect("failed to load test file");
-  let root = parse(&content).unwrap();
-  assert_eq!(content, root.document(4));
+  let input = include_str!("input_0001.idml");
+  let root = parse(input).unwrap();
+  assert_eq!(input, root.document(4));
 }

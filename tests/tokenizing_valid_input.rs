@@ -1,5 +1,4 @@
 use idml::{Token, join_tokens, tokenize};
-use std::fs;
 
 #[test]
 fn _0001() {
@@ -57,16 +56,6 @@ fn _0005() {
 
 #[test]
 fn _0006() {
-  // Valid comment and root node name followed by newline.
-  let input = "// New model\n.A\n";
-  assert_eq!(
-    vec![Token::Indentation(0), Token::NodeName("A".to_string(), '.'), Token::NodeContent("\n".to_string())],
-    tokenize(input).unwrap()
-  );
-}
-
-#[test]
-fn _0007() {
   // Valid root node name followed by whitespace and newline.
   let input = ".A \n";
   assert_eq!(
@@ -76,7 +65,7 @@ fn _0007() {
 }
 
 #[test]
-fn _0008() {
+fn _0007() {
   // Valid root node name followed by whitespace and single line node content.
   let input = ".ID id\n";
   assert_eq!(
@@ -86,7 +75,7 @@ fn _0008() {
 }
 
 #[test]
-fn _0009() {
+fn _0008() {
   // Valid root node name followed by multiline node content with one line.
   let input = ".ID\nFirst line.\n";
   assert_eq!(
@@ -100,7 +89,7 @@ fn _0009() {
 }
 
 #[test]
-fn _0010() {
+fn _0009() {
   // Valid root node name followed by multiline node content with multiple lines.
   let input = ".ID\nFirst line.\nSecond line.\nThird line.\n";
   assert_eq!(
@@ -114,7 +103,7 @@ fn _0010() {
 }
 
 #[test]
-fn _0011() {
+fn _0010() {
   // Valid root node name followed by multiline node content with multiple lines with indentations.
   let input = ".ID\n First line.\n  Second line.\n   Third line.\n";
   assert_eq!(
@@ -128,7 +117,7 @@ fn _0011() {
 }
 
 #[test]
-fn _0012() {
+fn _0011() {
   // Valid root node name followed by multiline node content with multiple
   // lines with indentations which starts directly after node name.
   let input = ".ID  First line.\n  Second line.\n   Third line.\n";
@@ -143,7 +132,7 @@ fn _0012() {
 }
 
 #[test]
-fn _0013() {
+fn _0012() {
   let input = ".MODEL\n.DECISION\n";
   assert_eq!(
     vec![
@@ -159,7 +148,7 @@ fn _0013() {
 }
 
 #[test]
-fn _0014() {
+fn _0013() {
   let input = r#".MODEL
     .NAMESPACE https://decision-toolkit.org/2_0001/
 "#;
@@ -177,7 +166,7 @@ fn _0014() {
 }
 
 #[test]
-fn _0015() {
+fn _0014() {
   let input = r#".MODEL
     .NAMESPACE https://decision-toolkit.org/2_0001/
     .NAME 2_0001
@@ -199,7 +188,7 @@ fn _0015() {
 }
 
 #[test]
-fn _0016() {
+fn _0015() {
   let input = r#".MODEL
     Line 1
     Line 2
@@ -220,8 +209,8 @@ fn _0016() {
 }
 
 #[test]
-fn _0017() {
-  let content = fs::read_to_string("./examples/compatibility/level_2/2_0001.dmm").expect("failed to load test file");
-  let tokens = tokenize(&content).unwrap();
-  assert_eq!(content, join_tokens(tokens));
+fn _0016() {
+  let input = include_str!("input_0001.idml");
+  let tokens = tokenize(input).unwrap();
+  assert_eq!(input, join_tokens(tokens));
 }
