@@ -3,17 +3,14 @@
 /// Whitespace character.
 pub const WS: char = ' ';
 
+/// Horizontal tab character.
+pub const TAB: char = '\t';
+
 /// Line feed character.
 pub const LF: char = '\n';
 
 /// Carriage return character.
 pub const CR: char = '\r';
-
-/// Slash character.
-pub const SLASH: char = '/';
-
-/// Asterisk character.
-pub const ASTERISK: char = '*';
 
 /// Hyphen character.
 pub const HYPHEN: char = '-';
