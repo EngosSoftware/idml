@@ -1,33 +1,10 @@
 //! # IDML tokenizer implementation
 
+use crate::defs::*;
 use crate::errors::*;
 use std::fmt::Write;
 use std::iter::Peekable;
 use std::str::Chars;
-
-/// Whitespace character.
-const WS: char = ' ';
-
-/// Line feed character.
-const LF: char = '\n';
-
-/// Carriage return character.
-const CR: char = '\r';
-
-/// Slash character.
-const SLASH: char = '/';
-
-/// Asterisk character.
-const ASTERISK: char = '*';
-
-/// Hyphen character.
-const HYPHEN: char = '-';
-
-/// Underscore character.
-const UNDERSCORE: char = '_';
-
-/// Empty character (zero).
-const NULL: char = 0 as char;
 
 /// Tokenizes input text.
 pub fn tokenize(input: &str) -> Result<Vec<Token>> {
