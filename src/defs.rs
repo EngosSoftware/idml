@@ -1,3 +1,5 @@
+//! # Common definitions
+
 /// Whitespace character.
 pub const WS: char = ' ';
 

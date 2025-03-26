@@ -1,4 +1,4 @@
-//! # The result and error types
+//! # Errors implementation
 
 use std::fmt;
 use std::fmt::Display;

@@ -1,4 +1,4 @@
-//! # IDML tokenizer implementation
+//! # Tokenizer implementation
 
 use crate::defs::*;
 use crate::errors::*;
