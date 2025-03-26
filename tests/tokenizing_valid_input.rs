@@ -1,5 +1,4 @@
 use idml::{Token, join_tokens, tokenize};
-use std::fs;
 
 #[test]
 fn _0001() {
@@ -211,7 +210,7 @@ fn _0015() {
 
 #[test]
 fn _0016() {
-  let content = fs::read_to_string("./examples/compatibility/level_2/2_0001.dmm").expect("failed to load test file");
-  let tokens = tokenize(&content).unwrap();
-  assert_eq!(content, join_tokens(tokens));
+  let input = include_str!("input_0001.idml");
+  let tokens = tokenize(input).unwrap();
+  assert_eq!(input, join_tokens(tokens));
 }
