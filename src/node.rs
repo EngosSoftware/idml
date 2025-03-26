@@ -106,6 +106,55 @@ impl Node {
     self.children.iter()
   }
 
+  /// Returns the iterator over child nodes having the specified name.
+  pub fn children_by_name(&self, name: impl AsRef<str>) -> impl Iterator<Item = &Node> {
+    self.children.iter().filter(move |node| node.name == name.as_ref())
+  }
+
+  /// Returns the iterator over child nodes having the specified names.
+  pub fn children_with_names(&self, names: &[impl AsRef<str>]) -> impl Iterator<Item = &Node> {
+    let names = names.iter().map(|name| name.as_ref()).collect::<Vec<&str>>();
+    self.children.iter().filter(move |node| names.contains(&node.name()))
+  }
+
+  /// Returns the iterator over child nodes having the specified tag.
+  pub fn children_by_tag(&self, tag: impl AsRef<str>) -> impl Iterator<Item = &Node> {
+    self.children.iter().filter(move |node| node.tag == tag.as_ref())
+  }
+
+  /// Returns the iterator over child nodes having the specified tags.
+  pub fn children_with_tags(&self, tags: &[impl AsRef<str>]) -> impl Iterator<Item = &Node> {
+    let tags = tags.iter().map(|tag| tag.as_ref()).collect::<Vec<&str>>();
+    self.children.iter().filter(move |node| tags.contains(&node.tag()))
+  }
+
+  /// Returns the iterator over child nodes **NOT** having the specified name.
+  pub fn children_except_name(&self, name: impl AsRef<str>) -> impl Iterator<Item = &Node> {
+    self.children.iter().filter(move |node| node.name != name.as_ref())
+  }
+
+  /// Returns the iterator over child nodes **NOT** having the specified names.
+  pub fn children_except_names(&self, names: &[impl AsRef<str>]) -> impl Iterator<Item = &Node> {
+    let names = names.iter().map(|name| name.as_ref()).collect::<Vec<&str>>();
+    self.children.iter().filter(move |node| !names.contains(&node.name()))
+  }
+
+  /// Returns the iterator over child nodes **NOT** having the specified tag.
+  pub fn children_except_tag(&self, tag: impl AsRef<str>) -> impl Iterator<Item = &Node> {
+    self.children.iter().filter(move |node| node.tag != tag.as_ref())
+  }
+
+  /// Returns the iterator over child nodes **NOT** having the specified tags.
+  pub fn children_except_tags(&self, tags: &[impl AsRef<str>]) -> impl Iterator<Item = &Node> {
+    let tags = tags.iter().map(|tag| tag.as_ref()).collect::<Vec<&str>>();
+    self.children.iter().filter(move |node| !tags.contains(&node.tag()))
+  }
+
+  /// Returns the number of child nodes.
+  pub fn child_count(&self) -> usize {
+    self.children.len()
+  }
+
   /// Returns a document starting from this node.
   pub fn document(&self, indent: usize) -> String {
     let mut buffer = String::new();
