@@ -310,7 +310,7 @@ impl<'a> Tokenizer<'a> {
 
   /// Returns `true` when the specified character is allowed delimiter character.
   fn is_allowed_delimiter(&self, ch: char) -> bool {
-    !(self.is_node_name_char(ch) || matches!(ch, NULL | WS | TAB | LF | CR | UNDERSCORE | HYPHEN))
+    !(self.is_node_name_char(ch) || matches!(ch, NULL..=WS | UNDERSCORE | HYPHEN))
   }
 
   /// Returns `true` when the specified character is recognized delimiter.

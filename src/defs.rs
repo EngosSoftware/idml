@@ -3,9 +3,6 @@
 /// Whitespace character.
 pub const WS: char = ' ';
 
-/// Horizontal tab character.
-pub const TAB: char = '\t';
-
 /// Line feed character.
 pub const LF: char = '\n';
 
