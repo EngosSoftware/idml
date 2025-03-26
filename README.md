@@ -1,4 +1,4 @@
-> Indented Delimiter Markup Language
+> Indented Delimiter Markup Language(s)
 
 # IDML 
 
