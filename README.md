@@ -1,4 +1,4 @@
-**idml** | Indented Delimiter Markup Language(s)
+**IDML** | Indented Delimiter Markup Language(s)
 
 # IDML 
 
