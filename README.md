@@ -1,6 +1,6 @@
-# IDML 
+> Indented Delimiter Markup Language
 
-> Indented Delimiter Markup Language(s)
+# IDML 
 
 [![Crates.io][crates-badge]][crates-url]
 ![Code coverage][coverage-badge]
