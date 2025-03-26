@@ -31,7 +31,7 @@ pub fn err_empty_input() -> DmmError {
 
 /// Reports an unexpected character on input.
 pub fn err_unexpected_character(ch: char, row: usize, col: usize) -> DmmError {
-  DmmError::new(&format!("unexpected character: '{ch}' 0x{:X} at row {row} and column {col}", ch as usize))
+  DmmError::new(&format!("unexpected character: '{ch}' 0x{:02X} at row {row} and column {col}", ch as usize))
 }
 
 /// Reports an unexpected end of input.
