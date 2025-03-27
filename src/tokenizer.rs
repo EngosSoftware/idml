@@ -2,32 +2,12 @@
 
 use crate::defs::*;
 use crate::errors::*;
-use std::fmt::Write;
 use std::iter::Peekable;
 use std::str::Chars;
 
 /// Tokenizes input text.
 pub fn tokenize(input: &str) -> Result<Vec<Token>> {
   Tokenizer::new(input).tokenize()
-}
-
-/// Combines tokens back to previously tokenized input text.
-pub fn join_tokens(tokens: Vec<Token>) -> String {
-  let mut buffer = String::new();
-  for token in tokens {
-    match token {
-      Token::Indentation(width) => {
-        let _ = write!(&mut buffer, "{}", " ".repeat(width));
-      }
-      Token::NodeName(name, delimiter) => {
-        let _ = write!(&mut buffer, "{delimiter}{name}");
-      }
-      Token::NodeContent(content) => {
-        let _ = write!(&mut buffer, "{content}");
-      }
-    }
-  }
-  buffer
 }
 
 /// Line endings.

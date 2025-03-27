@@ -1,4 +1,4 @@
-use idml::{Token, join_tokens, tokenize};
+use idml::{Token,  tokenize};
 
 #[test]
 fn _0001() {
@@ -206,11 +206,4 @@ fn _0015() {
     ],
     tokenize(input).unwrap()
   );
-}
-
-#[test]
-fn _0016() {
-  let input = include_str!("input_0001.idml");
-  let tokens = tokenize(input).unwrap();
-  assert_eq!(input, join_tokens(tokens));
 }
