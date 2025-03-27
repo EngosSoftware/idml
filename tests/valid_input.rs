@@ -117,7 +117,49 @@ fn _0008() {
 
 #[test]
 fn _0009() {
-  let input = include_str!("input_0001.idml");
+  let input = ".A\r";
+  let root = parse(input).unwrap();
+  assert_eq!(input, root.document(4));
+}
+
+#[test]
+fn _0010() {
+  let input = ".A\r\n";
+  let root = parse(input).unwrap();
+  assert_eq!(input, root.document(4));
+}
+
+#[test]
+fn _0011() {
+  let input = r#".A
+    .B
+    .C
+"#;
+  let root = parse(input).unwrap();
+  assert_eq!(input, root.document(4));
+}
+
+#[test]
+fn _0012() {
+  let input = r#".A
+
+
+    .B
+    .C
+"#;
+  let root = parse(input).unwrap();
+  assert_eq!(input, root.document(4));
+}
+
+#[test]
+fn _0013() {
+  let input = r#".A
+
+  some content
+
+    .B
+    .C
+"#;
   let root = parse(input).unwrap();
   assert_eq!(input, root.document(4));
 }

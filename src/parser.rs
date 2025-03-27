@@ -1,18 +1,14 @@
 //! # Parser implementation
 
+use crate::Node;
 use crate::defs::*;
 use crate::errors::*;
-use crate::{Node, Token, tokenize};
+use crate::tokenizer::{Token, tokenize};
 use std::vec::IntoIter;
 
 /// Parses input text.
 pub fn parse(input: &str) -> Result<Node> {
   Parser::new(tokenize(input)?).parse()
-}
-
-/// Parses input tokens.
-pub fn parse_tokens(tokens: Vec<Token>) -> Result<Node> {
-  Parser::new(tokens).parse()
 }
 
 /// Parser state.
