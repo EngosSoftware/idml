@@ -270,6 +270,12 @@ impl<'a> Tokenizer<'a> {
     self.chars.peek().cloned().unwrap_or(NULL)
   }
 
+  /// Consumes the indentation.
+  fn consume_indentation(&mut self) {
+    self.tokens.push(Token::Indentation(self.indentation.len()));
+    self.indentation.clear();
+  }
+
   /// Consumes the node name.
   fn consume_node_name(&mut self) {
     self.tokens.push(Token::NodeName(self.node_name.clone(), self.delimiter));
@@ -280,12 +286,6 @@ impl<'a> Tokenizer<'a> {
   fn consume_node_content(&mut self) {
     self.tokens.push(Token::NodeContent(self.node_content.clone()));
     self.node_content.clear();
-  }
-
-  /// Consumes the indentation.
-  fn consume_indentation(&mut self) {
-    self.tokens.push(Token::Indentation(self.indentation.len()));
-    self.indentation.clear();
   }
 
   /// Returns `true` when the specified character is allowed delimiter character.
