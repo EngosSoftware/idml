@@ -40,16 +40,13 @@ impl Node {
     }
   }
 
-  /// Returns `true` when this node is a root node.
+  /// Returns `true` when node is a root.
   pub(crate) fn is_root(&self) -> bool {
-    self.level == ROOT_LEVEL &&           // always 0
-      self.delimiter == ROOT_DELIMITER && // always zero
-      self.name == ROOT_NAME &&           // "root"
-      self.content == ROOT_CONTENT // empty string
+    self.level == ROOT_LEVEL && self.delimiter == ROOT_DELIMITER && self.name == ROOT_NAME && self.content == ROOT_CONTENT
   }
 
-  /// Creates a new node with delimiter, name and content.
-  pub fn new(level: usize, delimiter: char, name: String, content: String) -> Self {
+  /// Creates a new node.
+  pub(crate) fn new(level: usize, delimiter: char, name: String, content: String) -> Self {
     Self {
       level,
       delimiter,
@@ -60,16 +57,16 @@ impl Node {
   }
 
   /// Adds a child node at the end of the children list.
-  pub fn add_child(&mut self, node: Node) {
+  pub(crate) fn add_child(&mut self, node: Node) {
     self.children.push(node);
   }
 
-  /// Returns the indentation level.
+  /// Returns the indentation level of the node.
   pub fn level(&self) -> usize {
     self.level
   }
 
-  /// Returns the delimiter.
+  /// Returns the delimiter of the node.
   pub fn delimiter(&self) -> char {
     self.delimiter
   }
@@ -84,44 +81,45 @@ impl Node {
     &self.content
   }
 
-  /// Returns the node text, text is a trimmed node content.
+  /// Returns the node text.
+  /// Node text is a trimmed node content.
   pub fn text(&self) -> &str {
     self.content.trim()
   }
 
-  /// Returns the iterator over child nodes.
+  /// Returns the first child node having the specified name.
+  pub fn first_with_name(&self, name: impl AsRef<str>) -> Option<&Node> {
+    self.children.iter().find(|node| node.name == name.as_ref())
+  }
+
+  /// Returns the last child node having the specified name.
+  pub fn last_with_name(&self, name: impl AsRef<str>) -> Option<&Node> {
+    self.children.iter().rev().find(|node| node.name == name.as_ref())
+  }
+
+  /// Returns an iterator over all child nodes.
   pub fn children(&self) -> impl Iterator<Item = &Node> {
     self.children.iter()
   }
 
-  /// Returns the first child with specified name.
-  pub fn first(&self, name: impl AsRef<str>) -> Option<&Node> {
-    self.children.iter().find(|node| node.name == name.as_ref())
-  }
-
-  /// Returns the last child with specified name.
-  pub fn last(&self, name: impl AsRef<str>) -> Option<&Node> {
-    self.children.iter().rev().find(|node| node.name == name.as_ref())
-  }
-
-  /// Returns the iterator over child nodes having the specified name.
+  /// Returns an iterator over child nodes that have the specified name.
   pub fn with_name(&self, name: impl AsRef<str>) -> impl Iterator<Item = &Node> {
     self.children.iter().filter(move |node| node.name == name.as_ref())
   }
 
-  /// Returns the iterator over child nodes having the specified names.
+  /// Returns an iterator over child nodes that have any of the specified names.
   pub fn with_names(&self, names: &[impl AsRef<str>]) -> impl Iterator<Item = &Node> {
     let names = names.iter().map(|name| name.as_ref()).collect::<Vec<&str>>();
     self.children.iter().filter(move |node| names.contains(&node.name()))
   }
 
-  /// Returns the iterator over child nodes **NOT** having the specified name.
-  pub fn except_name(&self, name: impl AsRef<str>) -> impl Iterator<Item = &Node> {
+  /// Returns an iterator over child nodes, excluding those with the specified name.
+  pub fn excluding_name(&self, name: impl AsRef<str>) -> impl Iterator<Item = &Node> {
     self.children.iter().filter(move |node| node.name != name.as_ref())
   }
 
-  /// Returns the iterator over child nodes **NOT** having the specified names.
-  pub fn except_names(&self, names: &[impl AsRef<str>]) -> impl Iterator<Item = &Node> {
+  /// Returns an iterator over child nodes, excluding those with any of the specified names.
+  pub fn excluding_names(&self, names: &[impl AsRef<str>]) -> impl Iterator<Item = &Node> {
     let names = names.iter().map(|name| name.as_ref()).collect::<Vec<&str>>();
     self.children.iter().filter(move |node| !names.contains(&node.name()))
   }

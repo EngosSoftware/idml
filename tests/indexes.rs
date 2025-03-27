@@ -8,8 +8,8 @@ fn _0001() {
     .D
 "#;
   let root = parse(input).unwrap();
-  assert_eq!("A", root.first("A").unwrap().name());
-  assert_eq!("B", root.first("A").unwrap().first("B").unwrap().name());
+  assert_eq!("A", root.first_with_name("A").unwrap().name());
+  assert_eq!("B", root.first_with_name("A").unwrap().first_with_name("B").unwrap().name());
 }
 
 #[test]
@@ -20,6 +20,6 @@ fn _0002() {
     .D
 "#;
   let root = parse(input).unwrap();
-  assert_eq!("A", root.last("A").unwrap().name());
-  assert_eq!("D", root.last("A").unwrap().last("D").unwrap().name());
+  assert_eq!("A", root.last_with_name("A").unwrap().name());
+  assert_eq!("D", root.last_with_name("A").unwrap().last_with_name("D").unwrap().name());
 }

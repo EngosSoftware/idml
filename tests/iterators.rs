@@ -9,11 +9,11 @@ fn get_with_names(node: &Node, names: &[&str]) -> Vec<String> {
 }
 
 fn get_except_name(node: &Node, name: &str) -> Vec<String> {
-  node.except_name(name).map(|node| node.name().to_string()).collect::<Vec<String>>()
+  node.excluding_name(name).map(|node| node.name().to_string()).collect::<Vec<String>>()
 }
 
 fn get_except_names(node: &Node, names: &[&str]) -> Vec<String> {
-  node.except_names(names).map(|node| node.name().to_string()).collect::<Vec<String>>()
+  node.excluding_names(names).map(|node| node.name().to_string()).collect::<Vec<String>>()
 }
 
 #[test]
