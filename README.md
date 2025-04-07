@@ -1,4 +1,4 @@
-**IDML** | Indented Delimiter Markup Language(s)
+**idML** | Indented Delimiter Markup Language
 
 # IDML parser
 
@@ -32,7 +32,7 @@
 
 ## Overview
  
-Parser for IDML - Indented Delimiter Markup Language(s).
+Parser for Indented Delimiter Markup Language (**idML**).
 
 ## License
 

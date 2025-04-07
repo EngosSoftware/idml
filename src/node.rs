@@ -108,7 +108,7 @@ impl Node {
   }
 
   /// Returns an iterator over child nodes that have any of the specified names.
-  pub fn with_names(&self, names: &[impl AsRef<str>]) -> impl Iterator<Item = &Node> {
+  pub fn with_names<'a>(&'a self, names: &'a [impl AsRef<str>]) -> impl Iterator<Item = &'a Node> {
     let names = names.iter().map(|name| name.as_ref()).collect::<Vec<&str>>();
     self.children.iter().filter(move |node| names.contains(&node.name()))
   }
@@ -119,7 +119,7 @@ impl Node {
   }
 
   /// Returns an iterator over child nodes, excluding those with any of the specified names.
-  pub fn excluding_names(&self, names: &[impl AsRef<str>]) -> impl Iterator<Item = &Node> {
+  pub fn excluding_names<'a>(&'a self, names: &'a [impl AsRef<str>]) -> impl Iterator<Item = &'a Node> {
     let names = names.iter().map(|name| name.as_ref()).collect::<Vec<&str>>();
     self.children.iter().filter(move |node| !names.contains(&node.name()))
   }
