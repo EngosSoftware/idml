@@ -1,6 +1,6 @@
 **idML** | Indented Delimiter Markup Language
 
-# IDML parser
+# idML parser
 
 [![Crates.io][crates-badge]][crates-url]
 ![Code coverage][coverage-badge]
@@ -32,7 +32,7 @@
 
 ## Overview
  
-Parser for Indented Delimiter Markup Language (**idML**).
+Parser for Indented Delimiter Markup Language.
 
 ## License
 

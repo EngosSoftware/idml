@@ -1,8 +1,8 @@
 [package]
 name = "idml"
-version = "0.4.1"
+version = "0.4.2"
 authors = ["Dariusz Depta <depta@engos.de>"]
-description = "Parser for Indented Delimiter Markup Language (idML)"
+description = "Parser for Indented Delimiter Markup Language"
 documentation = "https://docs.rs/idml"
 repository = "https://github.com/EngosSoftware/idml.git"
 keywords = ["indented", "delimiter", "markup", "language", "parser"]
