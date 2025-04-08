@@ -130,14 +130,18 @@ impl Node {
   }
 
   /// Returns a document starting from this node.
-  pub fn document(&self, indent: usize) -> String {
+  pub fn document(&self, indent: usize, ch: char) -> String {
     let mut buffer = String::new();
     if !self.is_root() {
-      let indentation = if self.level > 1 { " ".repeat((self.level - 1) * indent) } else { "".to_string() };
+      let indentation = if self.level > 1 {
+        ch.to_string().repeat((self.level - 1) * indent)
+      } else {
+        "".to_string()
+      };
       let _ = write!(&mut buffer, "{}{}{}{}", indentation, self.delimiter, self.name, self.content);
     }
     for child in &self.children {
-      let _ = write!(&mut buffer, "{}", child.document(indent));
+      let _ = write!(&mut buffer, "{}", child.document(indent, ch));
     }
     buffer
   }

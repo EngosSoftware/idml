@@ -41,12 +41,12 @@ impl LineEnding {
 /// Tokens.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Token {
-  /// Node name token with delimiter.
+  /// Node name token with delimiter character.
   NodeName(String, char),
   /// Node content token.
   NodeContent(String),
-  /// Indentation token.
-  Indentation(usize),
+  /// Indentation token with indentation character.
+  Indentation(usize, char),
 }
 
 /// Tokenizer state.
@@ -58,8 +58,6 @@ enum TokenizerState {
   NewLine,
   /// Inside the indentation at the beginning of the line.
   Indentation,
-  /// Expecting node name starting character.
-  NodeNameStart,
   /// Inside the node name.
   NodeName,
   /// Inside the node content.
@@ -142,11 +140,11 @@ impl<'a> Tokenizer<'a> {
             (_, NULL, _) => return Err(err_empty_input()),
             (_, ch, _) if self.is_allowed_delimiter(ch) => {
               self.delimiter = ch;
-              self.tokens.push(Token::Indentation(0));
-              self.state = TokenizerState::NodeNameStart;
+              self.tokens.push(Token::Indentation(0, NULL));
+              self.state = TokenizerState::NodeName;
             }
             (_, other, _) => {
-              return Err(err_unexpected_character(other, self.row, self.column));
+              return Err(err_unexpected_character(if other == LF { self.line_ending.first() } else { other }, self.row, self.column));
             }
           }
         }
@@ -159,11 +157,15 @@ impl<'a> Tokenizer<'a> {
             }
             (_, ch, _) if self.is_delimiter(ch) => {
               self.consume_node_content();
-              self.tokens.push(Token::Indentation(0));
-              self.state = TokenizerState::NodeNameStart;
+              self.tokens.push(Token::Indentation(0, NULL));
+              self.state = TokenizerState::NodeName;
             }
             (_, WS, _) => {
               self.indentation.push(WS);
+              self.state = TokenizerState::Indentation;
+            }
+            (_, TAB, _) => {
+              self.indentation.push(TAB);
               self.state = TokenizerState::Indentation;
             }
             (_, LF, _) => {
@@ -176,33 +178,20 @@ impl<'a> Tokenizer<'a> {
             }
           }
         }
-        TokenizerState::NodeNameStart => {
-          // Consume the node name starting character.
-          match self.context() {
-            (_, NULL, _) => {
-              return Err(err_unexpected_end());
-            }
-            (_, ch, _) if self.is_node_name_start_char(ch) => {
-              self.node_name.push(self.current_char);
-              self.state = TokenizerState::NodeName;
-            }
-            (_, other, _) => {
-              return Err(err_unexpected_character(if other == LF { self.line_ending.first() } else { other }, self.row, self.column));
-            }
-          }
-        }
         TokenizerState::NodeName => {
           // Consume the node name.
           match self.context() {
             (_, NULL, _) => {
               return Err(err_unexpected_end());
             }
-            (_, ch, _) if self.is_node_name_char(ch) => {
-              self.node_name.push(self.current_char);
-            }
             (_, WS, _) => {
               self.consume_node_name();
               self.node_content.push(WS);
+              self.state = TokenizerState::NodeContent;
+            }
+            (_, TAB, _) => {
+              self.consume_node_name();
+              self.node_content.push(TAB);
               self.state = TokenizerState::NodeContent;
             }
             (_, LF, _) => {
@@ -211,8 +200,11 @@ impl<'a> Tokenizer<'a> {
               self.node_content.push_str(self.line_ending.as_ref());
               self.state = TokenizerState::NewLine;
             }
-            (_, ch, _) => {
-              return Err(err_unexpected_character(ch, self.row, self.column));
+            (_, ch, _) if self.is_node_name_char(ch) => {
+              self.node_name.push(self.current_char);
+            }
+            (_, other, _) => {
+              return Err(err_unexpected_character(other, self.row, self.column));
             }
           }
         }
@@ -222,10 +214,11 @@ impl<'a> Tokenizer<'a> {
             (_, NULL, _) => return Err(err_unexpected_end()),
             (_, ch, _) if self.is_delimiter(ch) => {
               self.consume_node_content();
-              self.consume_indentation();
-              self.state = TokenizerState::NodeNameStart
+              self.consume_indentation()?;
+              self.state = TokenizerState::NodeName
             }
             (_, WS, _) => self.indentation.push(WS),
+            (_, TAB, _) => self.indentation.push(TAB),
             (_, ch, _) => {
               self.node_content.push_str(&self.indentation);
               self.node_content.push(ch);
@@ -271,9 +264,18 @@ impl<'a> Tokenizer<'a> {
   }
 
   /// Consumes the indentation.
-  fn consume_indentation(&mut self) {
-    self.tokens.push(Token::Indentation(self.indentation.len()));
-    self.indentation.clear();
+  fn consume_indentation(&mut self) -> Result<()> {
+    if self.indentation.chars().all(|ch| ch == WS) {
+      self.tokens.push(Token::Indentation(self.indentation.len(), WS));
+      self.indentation.clear();
+      Ok(())
+    } else if self.indentation.chars().all(|ch| ch == TAB) {
+      self.tokens.push(Token::Indentation(self.indentation.len(), TAB));
+      self.indentation.clear();
+      Ok(())
+    } else {
+      Err(err_inconsistent_indentation())
+    }
   }
 
   /// Consumes the node name.
@@ -290,7 +292,7 @@ impl<'a> Tokenizer<'a> {
 
   /// Returns `true` when the specified character is allowed delimiter character.
   fn is_allowed_delimiter(&self, ch: char) -> bool {
-    !(self.is_node_name_char(ch) || matches!(ch, NULL..=WS | UNDERSCORE | HYPHEN))
+    matches!(ch, '\u{0021}'..='\u{10FFFF}')
   }
 
   /// Returns `true` when the specified character is recognized delimiter.
@@ -298,14 +300,9 @@ impl<'a> Tokenizer<'a> {
     ch == self.delimiter
   }
 
-  /// Returns `true` when the specified character is a node name starting character.
-  fn is_node_name_start_char(&self, ch: char) -> bool {
-    matches!(ch, 'a'..='z' | 'A'..='Z' | UNDERSCORE )
-  }
-
   /// Returns `true` when the specified character is a node name character.
   fn is_node_name_char(&self, ch: char) -> bool {
-    matches!(ch, 'a'..='z' | 'A'..='Z' | '0'..='9' | UNDERSCORE | HYPHEN)
+    matches!(ch, '\u{0021}'..='\u{10FFFF}')
   }
 
   /// Advances the counter to the new row.

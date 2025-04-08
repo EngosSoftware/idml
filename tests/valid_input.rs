@@ -1,7 +1,105 @@
-use idml::parse;
+use idml::{parse, TAB, WS};
 
 #[test]
 fn _0001() {
+  let inputs = ["-\n", "-\r", "-\r\n", "- \n"];
+  for input in inputs {
+    let root = parse(input).unwrap();
+    assert_eq!(1, root.children().count());
+    let node = root.children().next().unwrap();
+    assert_eq!('-', node.delimiter());
+    assert_eq!("", node.name());
+    assert_eq!(&input[1..], node.content());
+    assert_eq!("", node.text());
+  }
+}
+
+#[test]
+fn _0002() {
+  let input = "- node content\n";
+  let root = parse(input).unwrap();
+  assert_eq!(1, root.children().count());
+  let node = root.children().next().unwrap();
+  assert_eq!('-', node.delimiter());
+  assert_eq!("", node.name());
+  assert_eq!(" node content\n", node.content());
+  assert_eq!("node content", node.text());
+}
+
+#[test]
+fn _0003() {
+  let input = "ab\n";
+  let root = parse(input).unwrap();
+  assert_eq!(1, root.children().count());
+  let node = root.children().next().unwrap();
+  assert_eq!('a', node.delimiter());
+  assert_eq!("b", node.name());
+  assert_eq!("\n", node.content());
+  assert_eq!("", node.text());
+}
+
+#[test]
+fn _0004() {
+  let input = "aa b\n";
+  let root = parse(input).unwrap();
+  assert_eq!(1, root.children().count());
+  let node = root.children().next().unwrap();
+  assert_eq!('a', node.delimiter());
+  assert_eq!("a", node.name());
+  assert_eq!(" b\n", node.content());
+  assert_eq!("b", node.text());
+}
+
+#[test]
+fn _0005() {
+  let input = "aa\nb\n";
+  let root = parse(input).unwrap();
+  assert_eq!(1, root.children().count());
+  let node = root.children().next().unwrap();
+  assert_eq!('a', node.delimiter());
+  assert_eq!("a", node.name());
+  assert_eq!("\nb\n", node.content());
+  assert_eq!("b", node.text());
+}
+
+#[test]
+fn _0006() {
+  let input = "aa\rb\n";
+  let root = parse(input).unwrap();
+  assert_eq!(1, root.children().count());
+  let node = root.children().next().unwrap();
+  assert_eq!('a', node.delimiter());
+  assert_eq!("a", node.name());
+  assert_eq!("\rb\n", node.content());
+  assert_eq!("b", node.text());
+}
+
+#[test]
+fn _0007() {
+  let input = "aa\r\nb\n";
+  let root = parse(input).unwrap();
+  assert_eq!(1, root.children().count());
+  let node = root.children().next().unwrap();
+  assert_eq!('a', node.delimiter());
+  assert_eq!("a", node.name());
+  assert_eq!("\r\nb\n", node.content());
+  assert_eq!("b", node.text());
+}
+
+#[test]
+fn _0008() {
+  let input = "aa\tb\n";
+  let root = parse(input).unwrap();
+  assert_eq!(1, root.children().count());
+  let node = root.children().next().unwrap();
+  assert_eq!('a', node.delimiter());
+  assert_eq!("a", node.name());
+  assert_eq!("\tb\n", node.content());
+  assert_eq!("b", node.text());
+}
+
+#[test]
+fn _0009() {
   let input = ".A\n";
   let root = parse(input).unwrap();
   assert_eq!(1, root.children().count());
@@ -13,19 +111,19 @@ fn _0001() {
 }
 
 #[test]
-fn _0002() {
-  let input = "😀_this_is-some_casing-tag\n";
+fn _0010() {
+  let input = "😀_this_is-some_funny-name\n";
   let root = parse(input).unwrap();
   assert_eq!(1, root.children().count());
   let node = root.children().next().unwrap();
   assert_eq!('😀', node.delimiter());
-  assert_eq!("_this_is-some_casing-tag", node.name());
+  assert_eq!("_this_is-some_funny-name", node.name());
   assert_eq!("\n", node.content());
   assert_eq!("", node.text());
 }
 
 #[test]
-fn _0003() {
+fn _0011() {
   let input = ">z\n";
   let root = parse(input).unwrap();
   assert_eq!(1, root.children().count());
@@ -37,7 +135,7 @@ fn _0003() {
 }
 
 #[test]
-fn _0004() {
+fn _0012() {
   let input = ".A1\n";
   let root = parse(input).unwrap();
   assert_eq!(1, root.children().count());
@@ -49,7 +147,7 @@ fn _0004() {
 }
 
 #[test]
-fn _0005() {
+fn _0013() {
   let input = ".A\n.k\n";
   let root = parse(input).unwrap();
   let mut children = root.children();
@@ -67,7 +165,7 @@ fn _0005() {
 }
 
 #[test]
-fn _0006() {
+fn _0014() {
   let input = "$x\n$_\n";
   let root = parse(input).unwrap();
   let mut children = root.children();
@@ -85,7 +183,7 @@ fn _0006() {
 }
 
 #[test]
-fn _0007() {
+fn _0015() {
   let input = "*n\n    *_\n";
   let root = parse(input).unwrap();
   let mut children = root.children();
@@ -103,7 +201,7 @@ fn _0007() {
 }
 
 #[test]
-fn _0008() {
+fn _0016() {
   let input = ".A\n$B\n";
   let root = parse(input).unwrap();
   let mut children = root.children();
@@ -116,43 +214,31 @@ fn _0008() {
 }
 
 #[test]
-fn _0009() {
+fn _0017() {
   let input = ".A\r";
   let root = parse(input).unwrap();
-  assert_eq!(input, root.document(4));
+  assert_eq!(input, root.document(4, WS));
 }
 
 #[test]
-fn _0010() {
+fn _0018() {
   let input = ".A\r\n";
   let root = parse(input).unwrap();
-  assert_eq!(input, root.document(4));
+  assert_eq!(input, root.document(4, WS));
 }
 
 #[test]
-fn _0011() {
+fn _0019() {
   let input = r#".A
     .B
     .C
 "#;
   let root = parse(input).unwrap();
-  assert_eq!(input, root.document(4));
+  assert_eq!(input, root.document(4, WS));
 }
 
 #[test]
-fn _0012() {
-  let input = r#".A
-
-
-    .B
-    .C
-"#;
-  let root = parse(input).unwrap();
-  assert_eq!(input, root.document(4));
-}
-
-#[test]
-fn _0013() {
+fn _0020() {
   let input = r#".A
 
   some content
@@ -161,5 +247,19 @@ fn _0013() {
     .C
 "#;
   let root = parse(input).unwrap();
-  assert_eq!(input, root.document(4));
+  assert_eq!(input, root.document(4, WS));
+}
+
+#[test]
+fn _0021() {
+  let input = ".A\n\t.B\n\t.C\n";
+  let root = parse(input).unwrap();
+  assert_eq!(input, root.document(1, TAB));
+}
+
+#[test]
+fn _0022() {
+  let input = ".A\n\t\t.B\n\t\t.C\n";
+  let root = parse(input).unwrap();
+  assert_eq!(input, root.document(2, TAB));
 }

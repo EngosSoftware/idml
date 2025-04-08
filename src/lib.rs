@@ -10,6 +10,7 @@ mod node;
 mod parser;
 mod tokenizer;
 
+pub use defs::{CR, LF, NULL, TAB, WS};
 pub use node::Node;
-pub use parser::{Parser, parse};
-pub use tokenizer::{Token, Tokenizer, tokenize};
+pub use parser::{parse, Parser};
+pub use tokenizer::{tokenize, Token, Tokenizer};
