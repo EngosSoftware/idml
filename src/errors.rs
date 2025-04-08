@@ -58,3 +58,8 @@ pub fn err_expected_indentation() -> IdmlError {
 pub fn err_malformed_indentation(indent: usize, multiplier: usize) -> IdmlError {
   IdmlError::new(&format!("malformed indentation {indent}, expected multiplication of {multiplier}"))
 }
+
+/// Reports inconsistent indentation.
+pub fn err_inconsistent_indentation() -> IdmlError {
+  IdmlError::new("inconsistent indentation, mixed spaces and tabs")
+}

@@ -1,9 +1,9 @@
 //! # Parser implementation
 
-use crate::Node;
 use crate::defs::*;
 use crate::errors::*;
-use crate::tokenizer::{Token, tokenize};
+use crate::tokenizer::{tokenize, Token};
+use crate::Node;
 use std::vec::IntoIter;
 
 /// Parses input text.
@@ -28,7 +28,9 @@ pub struct Parser {
   nodes: Vec<Node>,
   stack: Vec<Node>,
   first_indent: usize,
+  first_indent_char: char,
   last_indent: usize,
+  last_indent_char: char,
   last_name: String,
   last_delimiter: char,
 }
@@ -42,7 +44,9 @@ impl Parser {
       nodes: vec![],
       stack: vec![],
       first_indent: 0,
+      first_indent_char: NULL,
       last_indent: 0,
+      last_indent_char: NULL,
       last_name: "".to_string(),
       last_delimiter: NULL,
     }
@@ -56,11 +60,13 @@ impl Parser {
       };
       match self.state {
         ParserState::Indentation => {
-          if let Token::Indentation(indent) = token {
+          if let Token::Indentation(indent, indent_char) = token {
             if self.first_indent == 0 && indent > 0 {
               self.first_indent = indent;
+              self.first_indent_char = indent_char;
             }
             self.last_indent = indent;
+            self.last_indent_char = indent_char;
             self.state = ParserState::NodeName;
           } else {
             return Err(err_expected_indentation());
@@ -77,7 +83,7 @@ impl Parser {
         }
         ParserState::NodeContent => {
           if let Token::NodeContent(content) = token {
-            self.create_node(self.last_indent, self.last_delimiter, self.last_name.clone(), content)?;
+            self.create_node(self.last_indent, self.last_indent_char, self.last_delimiter, self.last_name.clone(), content)?;
             self.last_indent = 0;
             self.last_name = "".to_string();
             self.last_delimiter = NULL;
@@ -106,10 +112,13 @@ impl Parser {
   }
 
   /// Creates a new node and adds it to the parsed node list.
-  fn create_node(&mut self, indent: usize, delimiter: char, name: String, content: String) -> Result<()> {
+  fn create_node(&mut self, indent: usize, indent_char: char, delimiter: char, name: String, content: String) -> Result<()> {
     let multiplier = self.first_indent;
     if multiplier > 0 && indent % multiplier != 0 {
       return Err(err_malformed_indentation(indent, multiplier));
+    }
+    if indent_char != self.first_indent_char {
+      return Err(err_inconsistent_indentation());
     }
     let level = if multiplier > 0 { (indent / multiplier) + 1 } else { 1 };
     let node = Node::new(level, delimiter, name, content);
