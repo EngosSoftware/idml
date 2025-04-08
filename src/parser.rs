@@ -117,7 +117,7 @@ impl Parser {
     if multiplier > 0 && indent % multiplier != 0 {
       return Err(err_malformed_indentation(indent, multiplier));
     }
-    if indent_char != self.first_indent_char {
+    if indent > 0 && indent_char != self.first_indent_char {
       return Err(err_inconsistent_indentation());
     }
     let level = if multiplier > 0 { (indent / multiplier) + 1 } else { 1 };
