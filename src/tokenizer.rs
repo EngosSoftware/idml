@@ -117,7 +117,7 @@ impl<'a> Tokenizer<'a> {
   /// Tokenizes the input text.
   pub fn tokenize(mut self) -> Result<Vec<Token>> {
     loop {
-      // Normalize the end-of-line character(s).
+      // Normalize the newline.
       (self.current_char, self.next_char) = match (self.next(true), self.peek()) {
         (LF, ch) => {
           self.line_ending = LineEnding::Lf;
@@ -135,7 +135,7 @@ impl<'a> Tokenizer<'a> {
       };
       match self.state {
         TokenizerState::Start => {
-          // Process the beginning of the file.
+          // Process the beginning of the document.
           match self.context() {
             (_, NULL, _) => return Err(err_empty_input()),
             (_, ch, _) if self.is_allowed_delimiter(ch) => {
@@ -149,7 +149,7 @@ impl<'a> Tokenizer<'a> {
           }
         }
         TokenizerState::NewLine => {
-          // Decide what at the beginning of the line.
+          // Process the beginning of the line.
           match self.context() {
             (_, NULL, _) => {
               self.consume_node_content();
@@ -169,7 +169,7 @@ impl<'a> Tokenizer<'a> {
               self.state = TokenizerState::Indentation;
             }
             (_, LF, _) => {
-              self.new_row();
+              self.next_row();
               self.node_content.push_str(self.line_ending.as_ref());
             }
             (_, other, _) => {
@@ -179,7 +179,7 @@ impl<'a> Tokenizer<'a> {
           }
         }
         TokenizerState::NodeName => {
-          // Consume the node name.
+          // Process the node name.
           match self.context() {
             (_, NULL, _) => {
               return Err(err_unexpected_end());
@@ -195,7 +195,7 @@ impl<'a> Tokenizer<'a> {
               self.state = TokenizerState::NodeContent;
             }
             (_, LF, _) => {
-              self.new_row();
+              self.next_row();
               self.consume_node_name();
               self.node_content.push_str(self.line_ending.as_ref());
               self.state = TokenizerState::NewLine;
@@ -209,7 +209,7 @@ impl<'a> Tokenizer<'a> {
           }
         }
         TokenizerState::Indentation => {
-          // Consume the indentation at the beginning of the line.
+          // Process the indentation.
           match self.context() {
             (_, NULL, _) => return Err(err_unexpected_end()),
             (_, ch, _) if self.is_delimiter(ch) => {
@@ -228,11 +228,11 @@ impl<'a> Tokenizer<'a> {
           }
         }
         TokenizerState::NodeContent => {
-          // Consume the node content.
+          // Process the content.
           match self.context() {
             (_, NULL, _) => return Err(err_unexpected_end()),
             (_, LF, _) => {
-              self.new_row();
+              self.next_row();
               self.node_content.push_str(self.line_ending.as_ref());
               self.state = TokenizerState::NewLine
             }
@@ -295,7 +295,7 @@ impl<'a> Tokenizer<'a> {
     matches!(ch, '\u{0021}'..='\u{10FFFF}')
   }
 
-  /// Returns `true` when the specified character is recognized delimiter.
+  /// Returns `true` when the specified character is equal to recognized delimiter.
   fn is_delimiter(&self, ch: char) -> bool {
     ch == self.delimiter
   }
@@ -305,8 +305,8 @@ impl<'a> Tokenizer<'a> {
     matches!(ch, '\u{0021}'..='\u{10FFFF}')
   }
 
-  /// Advances the counter to the new row.
-  fn new_row(&mut self) {
+  /// Advances the counter to the next row.
+  fn next_row(&mut self) {
     self.row += 1;
     self.column = 0;
   }
