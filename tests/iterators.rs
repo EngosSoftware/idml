@@ -1,4 +1,4 @@
-use idml::{Node, parse};
+use idml::{parse, Node};
 
 fn with_name(node: &Node, name: &str) -> Vec<String> {
   node.with_name(name).map(|node| node.name().to_string()).collect::<Vec<String>>()
