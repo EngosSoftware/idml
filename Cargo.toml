@@ -9,6 +9,12 @@ keywords = ["indented", "delimiter", "markup", "language", "parser"]
 categories = ["encoding"]
 license = "MIT OR Apache-2.0"
 edition = "2021"
+exclude = [
+    "rustfmt.toml",
+    "Taskfile.yml",
+    ".github/",
+    ".gitignore"
+]
 
 [dependencies]
 normalized-line-endings = "0.0.8"
