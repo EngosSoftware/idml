@@ -1,9 +1,7 @@
-**idML** | Indented Delimiter Markup Language
-
-# idML parser
+# idML
 
 [![Crates.io][crates-badge]][crates-url]
-![Code coverage][coverage-badge]
+[![Code coverage][cov-badge-idml]][cov-url]
 ![build Linux][build-badge-linux]
 ![build Windows][build-badge-windows]
 ![build MacOs][build-badge-macos]
@@ -11,7 +9,7 @@
 [![MIT licensed][mit-badge]][mit-license-url]
 [![Apache 2.0 licensed][apache-badge]][apache-license-url]
 [![Contributor Covenant][cc-badge]][cc-url]
-[![Made by Human][mbh-badge]][cc-url]
+[![Made by Human][made-by-human-badge]][made-by-human-url]
 
 [crates-badge]: https://img.shields.io/crates/v/idml.svg
 [crates-url]: https://crates.io/crates/idml
@@ -26,15 +24,19 @@
 [build-badge-windows]: https://github.com/EngosSoftware/idml/actions/workflows/build-windows.yml/badge.svg
 [build-badge-macos]: https://github.com/EngosSoftware/idml/actions/workflows/build-macos.yml/badge.svg
 [build-badge-macos-arm64]: https://github.com/EngosSoftware/idml/actions/workflows/build-macos-arm64.yml/badge.svg
-[coverage-badge]: https://img.shields.io/badge/Code%20coverage-100%25-green.svg
-[cc-badge]: https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg
+[cov-url]: https://crates.io/crates/coverio
+[cov-badge-idml]: https://img.shields.io/badge/cov-100%25-21b577.svg
+[cc-badge]: https://img.shields.io/badge/Contributor%20Covenant-2.1-blue.svg
 [cc-url]: https://github.com/EngosSoftware/idml/blob/main/CODE_OF_CONDUCT.md
-[mbh-badge]: https://img.shields.io/badge/Made_by-HUMAN-d35400.svg
+[made-by-human-badge]: https://img.shields.io/badge/Made_by-HUMAN-red.svg
+[made-by-human-url]: https://github.com/DariuszDepta
 [repository-url]: https://github.com/EngosSoftware/idml
+
+**Indented delimiter markup language parser**
 
 ## Overview
  
-Parser for Indented Delimiter Markup Language.
+Parser for Indented Delimiter Markup Language (**idML**).
 
 ## License
 
