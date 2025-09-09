@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: If you use this software, please cite it using these metadata.
-title: idml | Indented delimiter markup language parser
+title: idML | Indented delimiter markup language parser
 authors:
   - family-names: Depta
     given-names: Dariusz
