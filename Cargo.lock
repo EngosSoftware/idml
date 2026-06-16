@@ -4,13 +4,13 @@ version = 4
 
 [[package]]
 name = "idml"
-version = "0.5.3"
+version = "0.6.0"
 dependencies = [
  "normalized-line-endings",
 ]
 
 [[package]]
 name = "normalized-line-endings"
-version = "1.0.3"
+version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48c50a99c44f38341323345fe8e2e48949f22c6093590fe95d6be63c82ff1d39"
+checksum = "4ec1c9b208b243df153ffa70a7212704a421c77927c37fb871e699b28d696088"

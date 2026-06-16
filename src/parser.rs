@@ -1,9 +1,9 @@
 //! # Parser implementation
 
+use crate::Node;
 use crate::defs::*;
 use crate::errors::*;
-use crate::tokenizer::{tokenize, Token};
-use crate::Node;
+use crate::tokenizer::{Token, tokenize};
 use std::vec::IntoIter;
 
 /// Parses input text.
@@ -54,10 +54,7 @@ impl Parser {
 
   /// Parses the tokens.
   pub fn parse(mut self) -> Result<Node> {
-    loop {
-      let Some(token) = self.tokens.next() else {
-        break;
-      };
+    while let Some(token) = self.tokens.next() {
       match self.state {
         ParserState::Indentation => {
           if let Token::Indentation(indent, indent_char) = token {
@@ -114,13 +111,13 @@ impl Parser {
   /// Creates a new node and adds it to the parsed node list.
   fn create_node(&mut self, indent: usize, indent_char: char, delimiter: char, name: String, content: String) -> Result<()> {
     let multiplier = self.first_indent;
-    if multiplier > 0 && indent % multiplier != 0 {
+    if multiplier > 0 && !indent.is_multiple_of(multiplier) {
       return Err(err_malformed_indentation(indent, multiplier));
     }
     if indent > 0 && indent_char != self.first_indent_char {
       return Err(err_inconsistent_indentation());
     }
-    let level = if multiplier > 0 { (indent / multiplier) + 1 } else { 1 };
+    let level = indent.checked_div(multiplier).unwrap_or(0) + 1;
     let node = Node::new(level, delimiter, name, content);
     self.nodes.push(node);
     Ok(())

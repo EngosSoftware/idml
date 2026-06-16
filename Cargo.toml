@@ -1,6 +1,6 @@
 [package]
 name = "idml"
-version = "0.5.3"
+version = "0.6.0"
 authors = ["Dariusz Depta <depta@engos.de>"]
 description = "Parser for Indented Delimiter Markup Language"
 documentation = "https://docs.rs/idml"
@@ -8,16 +8,17 @@ repository = "https://github.com/EngosSoftware/idml.git"
 keywords = ["indented", "delimiter", "markup", "language", "parser"]
 categories = ["encoding"]
 license = "MIT OR Apache-2.0"
-edition = "2021"
+edition = "2024"
 exclude = [
-    "rustfmt.toml",
-    "Taskfile.yml",
     ".github/",
     ".gitignore",
-    "NOTES_AT_FUTURE_ME.md",
     "CODE_OF_CONDUCT.md",
-    "CITATION.cff"
+    "LICENSE",
+    "LICENSE-MIT",
+    "NOTICE",
+    "rustfmt.toml",
+    "Taskfile.yml"
 ]
 
 [dependencies]
-normalized-line-endings = "1.0.3"
+normalized-line-endings = "1.0.14"
